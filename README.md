@@ -11,7 +11,7 @@
 
 ### Backend
 - Node.js & Express
-- MySQL (XAMPP)
+- MySQL
 - JWT Authentication
 - QR Code Generation
 - bcrypt password hashing
@@ -26,18 +26,12 @@
 
 - Node.js v14+ (Kurulu: v25.2.1)
 - npm v6+ (Kurulu: 11.6.2)
-- XAMPP (MySQL)
+- MySQL
 - Modern web tarayıcısı
 
 ## 🔧 Kurulum
 
 ### 1. Veritabanı Kurulumu
-
-XAMPP'i başlatın ve MySQL'in çalıştığından emin olun:
-
-```bash
-# XAMPP Control Panel'den MySQL'i başlatın
-```
 
 Veritabanını oluşturun:
 
