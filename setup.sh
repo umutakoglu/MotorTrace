@@ -16,7 +16,7 @@ echo "🗄️  MySQL kontrolü..."
 if command -v mysql &> /dev/null; then
     echo "✅ MySQL kurulu"
 else
-    echo "⚠️  MySQL bulunamadı. XAMPP'de MySQL'in çalıştığından emin olun."
+    echo "⚠️  MySQL bulunamadı. MySQL'in çalıştığından emin olun."
 fi
 echo ""
 
