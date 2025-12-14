@@ -58,6 +58,10 @@ exports.createService = async (req, res, next) => {
             notes = ''
         } = req.body;
 
+        // Debug logging
+        console.log('Creating service for motorId:', motorId);
+        console.log('Authenticated user:', req.user);
+
         // Validation
         if (!service_date || !service_type) {
             return res.status(400).json({
@@ -79,14 +83,33 @@ exports.createService = async (req, res, next) => {
             });
         }
 
+        // Generate service ID
         const serviceId = uuidv4();
-        const createdBy = req.user.id;
+        
+        // Get user ID if available (but don't require it)
+        const userId = req.user?.userId || req.user?.id || null;
+        
+        console.log('User ID for created_by:', userId);
 
+        // Insert service record with created_by (can be NULL)
         await promisePool.query(
-            `INSERT INTO service_history 
-            (id, motor_id, service_date, service_type, description, technician, cost, parts_replaced, next_service_date, notes, created_by) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [serviceId, motorId, service_date, service_type, description, technician, cost, parts_replaced, next_service_date, notes, createdBy]
+            `INSERT INTO service_history (
+                id, motor_id, service_date, service_type, description,
+                technician, cost, parts_replaced, next_service_date, notes, created_by
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                serviceId,
+                motorId,
+                service_date,
+                service_type,
+                description,
+                technician,
+                cost,
+                parts_replaced,
+                next_service_date,
+                notes,
+                userId  // Can be NULL - ON DELETE SET NULL handles this
+            ]
         );
 
         // Get created service
@@ -203,3 +226,312 @@ exports.deleteService = async (req, res, next) => {
         next(error);
     }
 };
+
+// Upload service attachment
+exports.uploadAttachment = async (req, res, next) => {
+    try {
+        const { id: serviceId } = req.params;
+
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: 'Dosya yüklenmedi'
+            });
+        }
+
+        // Check if service exists
+        const [services] = await promisePool.query(
+            'SELECT id FROM service_history WHERE id = ?',
+            [serviceId]
+        );
+
+        if (services.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Servis kaydı bulunamadı'
+            });
+        }
+
+        const attachmentId = uuidv4();
+        const filePath = '/uploads/services/' + req.file.filename;
+
+        await promisePool.query(
+            `INSERT INTO service_attachments (id, service_id, file_name, file_path, file_type, file_size)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [attachmentId, serviceId, req.file.originalname, filePath, req.file.mimetype, req.file.size]
+        );
+
+        const [attachments] = await promisePool.query(
+            'SELECT * FROM service_attachments WHERE id = ?',
+            [attachmentId]
+        );
+
+        res.status(201).json({
+            success: true,
+            message: 'Dosya başarıyla yüklendi',
+            data: attachments[0]
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Delete service attachment
+exports.deleteAttachment = async (req, res, next) => {
+    try {
+        const { attachmentId } = req.params;
+        const fs = require('fs');
+        const path = require('path');
+
+        const [attachments] = await promisePool.query(
+            'SELECT * FROM service_attachments WHERE id = ?',
+            [attachmentId]
+        );
+
+        if (attachments.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Dosya bulunamadı'
+            });
+        }
+
+        const attachment = attachments[0];
+
+        // Delete file from filesystem
+        const filePath = path.join(__dirname, '..', attachment.file_path);
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
+
+        // Delete from database
+        await promisePool.query('DELETE FROM service_attachments WHERE id = ?', [attachmentId]);
+
+        res.json({
+            success: true,
+            message: 'Dosya başarıyla silindi'
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Get service report (HTML for printing)
+exports.getServiceReport = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const [services] = await promisePool.query(
+            `SELECT s.*, m.chassis_number, m.engine_number, m.model, m.year, m.color
+             FROM service_history s
+             JOIN motors m ON s.motor_id = m.id
+             WHERE s.id = ?`,
+            [id]
+        );
+
+        if (services.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Servis kaydı bulunamadı'
+            });
+        }
+
+        const service = services[0];
+
+        // Get attachments
+        const [attachments] = await promisePool.query(
+            'SELECT * FROM service_attachments WHERE service_id = ?',
+            [id]
+        );
+
+        service.attachments = attachments;
+
+        // Generate HTML report
+        const html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Servis Formu - ${service.model}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background: white;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #333;
+            padding-bottom: 20px;
+        }
+        
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+        }
+        
+        .section h2 {
+            background: #333;
+            color: white;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .info-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        
+        .info-item label {
+            font-weight: bold;
+            color: #666;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .info-item value {
+            color: #333;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        @media print {
+            body {
+                padding: 20px;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>SERVİS FORMU</h1>
+        <p>MotorTrace - Motor Takip Sistemi</p>
+    </div>
+    
+    <div class="section">
+        <h2>Motor Bilgileri</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <label>Model:</label>
+                <value>${service.model}</value>
+            </div>
+            <div class="info-item">
+                <label>Yıl:</label>
+                <value>${service.year}</value>
+            </div>
+            <div class="info-item">
+                <label>Şase No:</label>
+                <value>${service.chassis_number}</value>
+            </div>
+            <div class="info-item">
+                <label>Motor No:</label>
+                <value>${service.engine_number}</value>
+            </div>
+            <div class="info-item">
+                <label>Renk:</label>
+                <value>${service.color}</value>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>Servis Detayları</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <label>Servis Tarihi:</label>
+                <value>${new Date(service.service_date).toLocaleDateString('tr-TR')}</value>
+            </div>
+            <div class="info-item">
+                <label>Servis Tipi:</label>
+                <value>${service.service_type}</value>
+            </div>
+            <div class="info-item">
+                <label>Teknisyen:</label>
+                <value>${service.technician || 'Belirtilmemiş'}</value>
+            </div>
+            <div class="info-item">
+                <label>Maliyet:</label>
+                <value>${service.cost ? service.cost + ' TL' : 'Belirtilmemiş'}</value>
+            </div>
+            ${service.next_service_date ? `
+            <div class="info-item">
+                <label>Sonraki Servis Tarihi:</label>
+                <value>${new Date(service.next_service_date).toLocaleDateString('tr-TR')}</value>
+            </div>
+            ` : ''}
+            ${service.description ? `
+            <div class="info-item full-width">
+                <label>Açıklama:</label>
+                <value>${service.description}</value>
+            </div>
+            ` : ''}
+            ${service.parts_replaced ? `
+            <div class="info-item full-width">
+                <label>Değiştirilen Parçalar:</label>
+                <value>${service.parts_replaced}</value>
+            </div>
+            ` : ''}
+            ${service.notes ? `
+            <div class="info-item full-width">
+                <label>Notlar:</label>
+                <value>${service.notes}</value>
+            </div>
+            ` : ''}
+        </div>
+    </div>
+    
+    ${service.attachments.length > 0 ? `
+    <div class="section">
+        <h2>Ekler</h2>
+        <ul>
+            ${service.attachments.map(att => `<li>${att.file_name}</li>`).join('')}
+        </ul>
+    </div>
+    ` : ''}
+    
+    <div class="section">
+        <p style="text-align: center; color: #666; margin-top: 40px;">
+            Rapor Oluşturulma Tarihi: ${new Date().toLocaleString('tr-TR')}
+        </p>
+    </div>
+    
+    <script>
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 500);
+        };
+    </script>
+</body>
+</html>
+        `;
+
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.send(html);
+    } catch (error) {
+        next(error);
+    }
+};
+

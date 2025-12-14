@@ -1,5 +1,5 @@
 // API Client - Dynamic URL based on where frontend is accessed from
-const API_BASE_URL = `http://${window.location.hostname}:5000/api`;
+const API_BASE_URL = `http://${window.location.hostname}:5001/api`;
 
 const API = {
     // Helper to make requests
@@ -7,9 +7,13 @@ const API = {
         const token = Storage.getToken();
 
         const headers = {
-            'Content-Type': 'application/json',
             ...options.headers
         };
+
+        // Only set Content-Type if not FormData (browser sets it automatically for FormData)
+        if (!(options.body instanceof FormData)) {
+            headers['Content-Type'] = 'application/json';
+        }
 
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
@@ -105,6 +109,125 @@ const API = {
         }),
 
         delete: (id) => API.request(`/services/${id}`, {
+            method: 'DELETE'
+        }),
+
+        uploadAttachment: (serviceId, formData) => API.request(`/services/${serviceId}/attachments`, {
+            method: 'POST',
+            body: formData // FormData for file upload
+        }),
+
+        deleteAttachment: (attachmentId) => API.request(`/services/attachments/${attachmentId}`, {
+            method: 'DELETE'
+        }),
+
+        getServiceReport: (serviceId) => `${API_BASE_URL}/services/${serviceId}/report`
+    },
+
+    // User management endpoints (admin only)
+    users: {
+        getAll: () => API.request('/users'),
+
+        getById: (id) => API.request(`/users/${id}`),
+
+        create: (userData) => API.request('/users', {
+            method: 'POST',
+            body: JSON.stringify(userData)
+        }),
+
+        updateRole: (id, role) => API.request(`/users/${id}/role`, {
+            method: 'PUT',
+            body: JSON.stringify({ role })
+        }),
+
+        delete: (id) => API.request(`/users/${id}`, {
+            method: 'DELETE'
+        }),
+
+        getStats: () => API.request('/users/stats')
+    },
+
+    // Activity logs (admin only)
+    activityLogs: {
+        getAll: (params = {}) => {
+            const queryString = new URLSearchParams(params).toString();
+            return API.request(`/activity-logs${queryString ? '?' + queryString : ''}`);
+        },
+
+        getStats: () => API.request('/activity-logs/stats')
+    },
+
+    // Service types
+    serviceTypes: {
+        getAll: (includeInactive = false) => {
+            const params = includeInactive ? '?includeInactive=true' : '';
+            return API.request(`/service-types${params}`);
+        },
+
+        getById: (id) => API.request(`/service-types/${id}`),
+
+        create: (data) => API.request('/service-types', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        }),
+
+        update: (id, data) => API.request(`/service-types/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        }),
+
+        delete: (id) => API.request(`/service-types/${id}`, {
+            method: 'DELETE'
+        }),
+
+        getStats: () => API.request('/service-types/stats')
+    },
+
+    // Technicians
+    technicians: {
+        getAll: (includeInactive = false) => {
+            const params = includeInactive ? '?includeInactive=true' : '';
+            return API.request(`/technicians${params}`);
+        },
+
+        getById: (id) => API.request(`/technicians/${id}`),
+
+        create: (data) => API.request('/technicians', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        }),
+
+        update: (id, data) => API.request(`/technicians/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        }),
+
+        delete: (id) => API.request(`/technicians/${id}`, {
+            method: 'DELETE'
+        }),
+
+        getStats: () => API.request('/technicians/stats')
+    },
+
+    // Roles (admin only)
+    roles: {
+        getAll: () => API.request('/roles'),
+
+        getById: (id) => API.request(`/roles/${id}`),
+
+        getPermissions: (id) => API.request(`/roles/${id}/permissions`),
+
+        create: (data) => API.request('/roles', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        }),
+
+        update: (id, data) => API.request(`/roles/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        }),
+
+        delete: (id) => API.request(`/roles/${id}`, {
             method: 'DELETE'
         })
     }

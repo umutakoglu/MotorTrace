@@ -27,7 +27,7 @@ const MotorFormComponent = {
                 <div class="mb-8">
                     <div class="flex items-center justify-between mb-4">
                         <div>
-                            <h1 class="text-4xl font-bold text-white mb-2">
+                            <h1 class="text-4xl font-bold text-black mb-2">
                                 ${isEditMode ? 'Motor Düzenle' : 'Yeni Motor Ekle'}
                             </h1>
                             <p class="text-gray-600">

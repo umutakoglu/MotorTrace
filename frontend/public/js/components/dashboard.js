@@ -61,7 +61,7 @@ const DashboardComponent = {
                         <h3 class="text-gray-600 font-medium">Toplam Motor</h3>
                     </div>
 
-                    <!-- Quick Access -->
+                    <!-- Quick Access --></strong>
                     <div class="glass-dark rounded-xl p-6 card-hover cursor-pointer" onclick="App.navigate('motors')">
                         <div class="flex items-center justify-between mb-4">
                             <div class="bg-blue-500/20 rounded-lg p-3">
@@ -83,6 +83,79 @@ const DashboardComponent = {
                         <h3 class="text-gray-600 font-medium">QR Kod Okut</h3>
                     </div>
                 </div>
+
+                <!-- Additional Features -->
+                <div class="grid grid-cols-1 md:grid-cols-${isAdmin ? '4' : '2'} gap-6 mb-8">
+                    <!-- Service History -->
+                    <div class="glass-dark rounded-xl p-6 card-hover cursor-pointer" onclick="App.navigate('service-history')">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-orange-500/20 rounded-lg p-3">
+                                <i class="fas fa-history text-2xl text-orange-400"></i>
+                            </div>
+                            <i class="fas fa-arrow-right text-2xl text-orange-400"></i>
+                        </div>
+                        <h3 class="text-gray-600 font-medium">Servis Geçmişi</h3>
+                        <p class="text-sm text-gray-500 mt-2">Tüm servisleri görüntüle</p>
+                    </div>
+
+                    <!-- Admin-Only Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-${Permissions.isAdmin() ? '4' : '3'} gap-6">
+                        <!-- Bulk Import -->
+                        ${Permissions.canAccessBulkImport() ? `
+                            <div class="glass-dark rounded-xl p-6 card-hover cursor-pointer" onclick="App.navigate('bulk-import')">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="bg-indigo-500/20 rounded-lg p-3">
+                                        <i class="fas fa-file-import text-2xl text-indigo-400"></i>
+                                    </div>
+                                    <i class="fas fa-arrow-right text-2xl text-indigo-400"></i>
+                                </div>
+                                <h3 class="text-gray-600 font-medium">Toplu İçe Aktarma</h3>
+                                <p class="text-sm text-gray-500 mt-2">CSV ile çoklu motor ekle</p>
+                            </div>
+                        ` : ''}
+
+                        <!-- User Management -->
+                        ${Permissions.canAccessUserManagement() ? `
+                            <div class="glass-dark rounded-xl p-6 card-hover cursor-pointer" onclick="App.navigate('user-management')">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="bg-pink-500/20 rounded-lg p-3">
+                                        <i class="fas fa-users text-2xl text-pink-400"></i>
+                                    </div>
+                                    <i class="fas fa-arrow-right text-2xl text-pink-400"></i>
+                                </div>
+                                <h3 class="text-gray-600 font-medium">Kullanıcı Yönetimi</h3>
+                                <p class="text-sm text-gray-500 mt-2">Kullanıcı rolleri ve yetkiler</p>
+                            </div>
+                        ` : ''}
+
+                        <!-- Service Type Management -->
+                        ${Permissions.canAccessServiceTypes() ? `
+                            <div class="glass-dark rounded-xl p-6 card-hover cursor-pointer" onclick="App.navigate('service-type-management')">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="bg-teal-500/20 rounded-lg p-3">
+                                        <i class="fas fa-tags text-2xl text-teal-400"></i>
+                                    </div>
+                                    <i class="fas fa-arrow-right text-2xl text-teal-400"></i>
+                                </div>
+                                <h3 class="text-gray-600 font-medium">Servis Tipleri</h3>
+                                <p class="text-sm text-gray-500 mt-2">Servis tipi yönetimi</p>
+                            </div>
+                        ` : ''}
+
+                        <!-- Activity Logs -->
+                        ${Permissions.canAccessActivityLogs() ? `
+                            <div class="glass-dark rounded-xl p-6 card-hover cursor-pointer" onclick="App.navigate('activity-logs')">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="bg-orange-500/20 rounded-lg p-3">
+                                        <i class="fas fa-history text-2xl text-orange-400"></i>
+                                    </div>
+                                    <i class="fas fa-arrow-right text-2xl text-orange-400"></i>
+                                </div>
+                                <h3 class="text-gray-600 font-medium">Aktivite Logları</h3>
+                                <p class="text-sm text-gray-500 mt-2">Sistem aktivite geçmişi</p>
+                            </div>
+                        ` : ''}
+                    </div>
 
                 <!-- Recent Motors -->
                 <div class="glass-dark rounded-xl p-6">

@@ -11,6 +11,11 @@ const authRoutes = require('./routes/auth.routes');
 const motorRoutes = require('./routes/motor.routes');
 const serviceRoutes = require('./routes/service.routes');
 const bulkImportRoutes = require('./routes/bulkImport.routes');
+const userRoutes = require('./routes/user.routes');
+const activityLogRoutes = require('./routes/activityLog.routes');
+const serviceTypeRoutes = require('./routes/serviceType.routes');
+const technicianRoutes = require('./routes/technician.routes');
+const roleRoutes = require('./routes/role.routes');
 
 const app = express();
 const PORT = process.env.PORT || 5001; // Changed from 5000 to avoid macOS AirPlay conflict
@@ -42,6 +47,11 @@ app.use('/api/auth', authRoutes);
 app.use('/api/motors', motorRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/bulk-import', bulkImportRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/activity-logs', activityLogRoutes);
+app.use('/api/service-types', serviceTypeRoutes);
+app.use('/api/technicians', technicianRoutes);
+app.use('/api/roles', roleRoutes);
 
 // 404 handler
 app.use((req, res) => {

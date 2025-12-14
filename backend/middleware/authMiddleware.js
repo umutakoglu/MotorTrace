@@ -19,10 +19,12 @@ const authenticateToken = (req, res, next) => {
             });
         }
 
+        // Store user info in request - ensure userId is properly extracted
         req.user = {
-            userId: decoded.userId,
+            id: decoded.userId || decoded.id, // Support both field names for compatibility
+            userId: decoded.userId || decoded.id,
             email: decoded.email,
-            role: decoded.role
+            role: decoded.role || 'user'
         };
         next();
     });

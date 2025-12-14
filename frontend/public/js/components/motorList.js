@@ -31,11 +31,13 @@ const MotorListComponent = {
                                 <i class="fas fa-arrow-left mr-2"></i>
                                 Dashboard
                             </button>
-                            ${isAdmin ? `
+                            ${Permissions.canAccessBulkImport() ? `
                                 <button onclick="App.navigate('bulk-import')" class="btn-secondary">
                                     <i class="fas fa-file-excel mr-2"></i>
                                     Toplu İçe Aktar
                                 </button>
+                            ` : ''}
+                            ${Permissions.canAddMotor() ? `
                                 <button onclick="App.navigate('motor-new')" class="btn-primary">
                                     <i class="fas fa-plus mr-2"></i>
                                     Yeni Motor
@@ -284,7 +286,7 @@ const MotorListComponent = {
                 </style>
             </head>
             <body>
-                <img src="http://${window.location.hostname}:5000/api/motors/${motorId}/qr" alt="QR Code" />
+                <img src="http://${window.location.hostname}:5001/api/motors/${motorId}/qr/download" alt="QR Code" />
                 <script>
                     window.onload = function() {
                         setTimeout(function() {

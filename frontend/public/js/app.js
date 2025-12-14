@@ -23,7 +23,7 @@ const App = {
         App.currentParams = params;
 
         // Check auth for protected routes
-        const protectedRoutes = ['dashboard', 'motors', 'motor-detail', 'motor-new', 'motor-edit', 'bulk-import'];
+        const protectedRoutes = ['dashboard', 'motors', 'motor-detail', 'motor-new', 'motor-edit', 'bulk-import', 'user-management', 'service-history', 'service-type-management', 'activity-logs'];
         if (protectedRoutes.includes(route) && !Storage.isAuthenticated()) {
             App.navigate('login');
             return;
@@ -57,6 +57,18 @@ const App = {
             case 'bulk-import':
                 html = BulkImportComponent.render();
                 break;
+            case 'user-management':
+                html = await UserManagementComponent.render();
+                break;
+            case 'service-history':
+                html = await ServiceHistoryComponent.render();
+                break;
+            case 'service-type-management':
+                html = await ServiceTypeManagement.render();
+                break;
+            case 'activity-logs':
+                html = await ActivityLogsComponent.render();
+                break;
             default:
                 html = '<div class="p-8 text-gray-900"><h1>404 - Page Not Found</h1></div>';
         }
@@ -79,10 +91,10 @@ const App = {
                     password: loginForm.password.value
                 };
                 
-                const errors = Validator.validateLoginForm(formData);
-                if (errors.length > 0) {
+                // Simple validation
+                if (!formData.email || !formData.password) {
                     document.getElementById('login-error').classList.remove('hidden');
-                    document.querySelector('#login-error p').textContent = errors.join(', ');
+                    document.querySelector('#login-error p').textContent = 'Email ve şifre gerekli';
                     return;
                 }
 

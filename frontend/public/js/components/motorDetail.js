@@ -43,16 +43,18 @@ const MotorDetailComponent = {
                         <div class="flex gap-3">
                             <button onclick="App.navigate('motors')" class="btn-secondary">
                                 <i class="fas fa-arrow-left mr-2"></i>
-                                Geri Dön
+                                Geri
                             </button>
-                            <button onclick="MotorDetailComponent.printQR()" class="btn-secondary">
-                                <i class="fas fa-print mr-2"></i>
-                                QR Yazdır
-                            </button>
-                            ${isAdmin ? `
+                            ${Permissions.canEditMotor() ? `
                                 <button onclick="App.navigate('motor-edit', '${motor.id}')" class="btn-primary">
                                     <i class="fas fa-edit mr-2"></i>
                                     Düzenle
+                                </button>
+                            ` : ''}
+                            ${Permissions.canDeleteMotor() ? `
+                                <button onclick="MotorDetailComponent.deleteMotor('${motor.id}')" class="btn-danger">
+                                    <i class="fas fa-trash mr-2"></i>
+                                    Sil
                                 </button>
                             ` : ''}
                         </div>
@@ -157,8 +159,8 @@ const MotorDetailComponent = {
                         <div class="glass-dark rounded-xl p-6">
                             <div class="flex items-center justify-between mb-6">
                                 <h2 class="text-2xl font-bold text-gray-900">Servis Geçmişi</h2>
-                                ${isAdmin ? `
-                                    <button class="btn-primary" onclick="alert('Servis ekleme özelliği yakında eklenecek')">
+                                ${Permissions.canAddService() ? `
+                                    <button class="btn-primary" onclick="AddServiceModal.open('${motor.id}')">
                                         <i class="fas fa-plus mr-2"></i>
                                         Servis Ekle
                                     </button>
@@ -178,7 +180,7 @@ const MotorDetailComponent = {
                                 <!-- QR Code exists -->
                                 <div class="bg-white p-4 rounded-lg border-2 border-gray-200 mb-4">
                                     <img 
-                                        src="http://${window.location.hostname}:5000${motor.qrCode.qr_image_path}" 
+                                        src="http://${window.location.hostname}:5001/api/motors/${motor.id}/qr/download" 
                                         alt="Motor QR Code"
                                         class="w-full h-auto"
                                         onerror="this.parentElement.innerHTML='<div class=\\'p-8 text-center text-gray-400\\'>QR görsel yüklenemedi<br><small>${motor.qrCode.qr_image_path}</small></div>'"
@@ -186,7 +188,7 @@ const MotorDetailComponent = {
                                 </div>
 
                                 <a 
-                                    href="http://${window.location.hostname}:5000${motor.qrCode.qr_image_path}" 
+                                    href="http://${window.location.hostname}:5001/api/motors/${motor.id}/qr/download" 
                                     download="motor-qr-${motor.chassis_number}.png"
                                     target="_blank"
                                     class="btn-primary w-full block text-center">
@@ -225,19 +227,80 @@ const MotorDetailComponent = {
             `;
         }
 
+        const user = Storage.getUser();
+        const isAdmin = user && user.role === 'admin';
+
         return `
             <div class="space-y-3">
                 ${MotorDetailComponent.services.map(service => `
                     <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                         <div class="flex items-start justify-between">
                             <div class="flex-1">
-                                <h3 class="font-semibold text-gray-900 mb-1">${service.service_type}</h3>
-                                <p class="text-sm text-gray-600 mb-2">${service.description || 'Açıklama yok'}</p>
-                                <div class="flex flex-wrap gap-4 text-sm text-gray-500">
-                                    <span><i class="fas fa-calendar mr-1"></i>${new Date(service.service_date).toLocaleDateString('tr-TR')}</span>
-                                    ${service.technician ? `<span><i class="fas fa-user mr-1"></i>${service.technician}</span>` : ''}
-                                    ${service.cost ? `<span><i class="fas fa-lira-sign mr-1"></i>${service.cost} TL</span>` : ''}
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h3 class="font-semibold text-gray-900 text-lg">${service.service_type}</h3>
+                                    <span class="text-sm text-gray-500">
+                                        <i class="fas fa-calendar mr-1"></i>
+                                        ${new Date(service.service_date).toLocaleDateString('tr-TR')}
+                                    </span>
                                 </div>
+                                
+                                ${service.description ? `
+                                    <p class="text-sm text-gray-600 mb-2">${service.description}</p>
+                                ` : ''}
+                                
+                                <div class="flex flex-wrap gap-3 text-sm text-gray-500 mb-2">
+                                    ${service.technician ? `
+                                        <span><i class="fas fa-user mr-1"></i>${service.technician}</span>
+                                    ` : ''}
+                                    ${service.cost ? `
+                                        <span><i class="fas fa-lira-sign mr-1"></i>${service.cost} TL</span>
+                                    ` : ''}
+                                    ${service.next_service_date ? `
+                                        <span><i class="fas fa-clock mr-1"></i>Sonraki: ${new Date(service.next_service_date).toLocaleDateString('tr-TR')}</span>
+                                    ` : ''}
+                                </div>
+
+                                ${service.parts_replaced ? `
+                                    <div class="mt-2 text-sm">
+                                        <span class="font-medium text-gray-700">Değiştirilen Parçalar:</span>
+                                        <span class="text-gray-600"> ${service.parts_replaced}</span>
+                                    </div>
+                                ` : ''}
+
+                                ${service.attachments && service.attachments.length > 0 ? `
+                                    <div class="mt-3 flex flex-wrap gap-2">
+                                        ${service.attachments.map(att => `
+                                            <a href="http://${window.location.hostname}:5001${att.file_path}" 
+                                               target="_blank"
+                                               class="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-sm hover:bg-blue-100">
+                                                <i class="fas fa-paperclip"></i>
+                                                ${att.file_name}
+                                            </a>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+                                ${service.notes ? `
+                                    <div class="mt-2">
+                                        <span class="text-sm font-medium text-gray-700">Notlar:</span>
+                                        <p class="text-sm text-gray-600 mt-1">${service.notes}</p>
+                                    </div>
+                                ` : ''}
+                            </div>
+
+                            <div class="flex gap-2">
+                                <button class="text-blue-600 hover:text-blue-700" onclick="MotorDetailComponent.printServiceReport('${service.id}')">
+                                    <i class="fas fa-print"></i>
+                                </button>
+                                ${Permissions.canEditService() ? `
+                                    <button class="text-yellow-600 hover:text-yellow-700">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                ` : ''}
+                                ${Permissions.canDeleteService() ? `
+                                    <button class="text-red-600 hover:text-red-700" onclick="MotorDetailComponent.deleteService('${service.id}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -258,57 +321,88 @@ const MotorDetailComponent = {
         const motor = MotorDetailComponent.motor;
         if (!motor) return;
 
-        // Create a hidden iframe for printing
-        const iframe = document.createElement('iframe');
-        iframe.style.position = 'absolute';
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.border = 'none';
-        document.body.appendChild(iframe);
-
-        const iframeDoc = iframe.contentWindow.document;
-        iframeDoc.open();
-        iframeDoc.write(`
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
             <!DOCTYPE html>
             <html>
             <head>
-                <title>QR Kod</title>
+                <meta charset="UTF-8">
+                <title>QR Kod - ${motor.chassis_number}</title>
                 <style>
-                    * { margin: 0; padding: 0; box-sizing: border-box; }
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                    }
+                    
                     body {
                         display: flex;
+                        flex-direction: column;
                         justify-content: center;
                         align-items: center;
                         min-height: 100vh;
                         background: white;
+                        font-family: Arial, sans-serif;
+                        padding: 20px;
                     }
+                    
+                    .qr-container {
+                        text-align: center;
+                        padding: 20px;
+                        border: 2px solid #333;
+                    }
+                    
+                    h2 {
+                        margin-bottom: 15px;
+                        color: #333;
+                    }
+                    
                     img {
-                        max-width: 400px;
+                        max-width: 300px;
                         width: 100%;
                         height: auto;
+                        margin: 20px 0;
                     }
+                    
+                    .info {
+                        margin-top: 15px;
+                        font-size: 14px;
+                        color: #666;
+                    }
+                    
                     @media print {
-                        body { padding: 0; margin: 0; }
+                        body { 
+                            padding: 0;
+                            margin: 0;
+                        }
+                        .qr-container {
+                            border: none;
+                        }
                     }
                 </style>
             </head>
             <body>
-                <img src="http://${window.location.hostname}:5000/api/motors/${motor.id}/qr" alt="QR Code" />
+                <div class="qr-container">
+                    <h2>${motor.model}</h2>
+                    <img src="http://${window.location.hostname}:5001/api/motors/${motor.id}/qr/download" 
+                         alt="QR Code" 
+                         onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22300%22><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22>QR Yüklenemedi</text></svg>'" />
+                    <div class="info">
+                        <p><strong>Şase No:</strong> ${motor.chassis_number}</p>
+                        <p><strong>Motor No:</strong> ${motor.engine_number}</p>
+                    </div>
+                </div>
                 <script>
                     window.onload = function() {
                         setTimeout(function() {
                             window.print();
-                            // Clean up after printing
-                            setTimeout(function() {
-                                window.parent.document.body.removeChild(window.frameElement);
-                            }, 100);
                         }, 500);
                     };
                 </script>
             </body>
             </html>
         `);
-        iframeDoc.close();
+        printWindow.document.close();
     },
 
     generateQR: async (motorId) => {
@@ -335,6 +429,32 @@ const MotorDetailComponent = {
         } catch (error) {
             hideLoading();
             showToast('Hata oluştu: ' + error.message, 'error');
+        }
+    },
+
+    printServiceReport: (serviceId) => {
+        const reportUrl = API.services.getServiceReport(serviceId);
+        window.open(reportUrl, '_blank');
+    },
+
+    deleteService: async (serviceId) => {
+        if (!confirm('Bu servis kaydını silmek istediğinizden emin misiniz?')) {
+            return;
+        }
+
+        showLoading();
+        try {
+            await API.services.delete(serviceId);
+            hideLoading();
+            showToast('Servis kaydı silindi', 'success');
+            
+            // Reload page
+            setTimeout(() => {
+                App.navigate('motor-detail', MotorDetailComponent.motor.id);
+            }, 500);
+        } catch (error) {
+            hideLoading();
+            showToast('Hata: ' + error.message, 'error');
         }
     },
 

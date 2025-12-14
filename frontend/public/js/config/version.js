@@ -1,4 +1,4 @@
-// Application Version Configuration
-const APP_VERSION = '1.7.3';
+// Application version and build info
+const APP_VERSION = '2.0.0';
+const APP_BUILD_DATE = new Date().toISOString().split('T')[0];
 const APP_NAME = 'MotorTrace';
-const APP_BUILD_DATE = '2025-12-11';
