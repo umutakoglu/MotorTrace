@@ -1,10 +1,5 @@
 -- MotorTrace Database Schema
 -- MySQL Database for Motor Tracking System with QR Codes
-
--- Create database
-CREATE DATABASE IF NOT EXISTS motortrace CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE motortrace;
-
 -- Users table for authentication
 CREATE TABLE IF NOT EXISTS users (
     id VARCHAR(36) PRIMARY KEY,
@@ -103,14 +98,3 @@ CREATE TABLE IF NOT EXISTS qr_codes (
     INDEX idx_motor_id (motor_id),
     FOREIGN KEY (motor_id) REFERENCES motors(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Create default admin user (password: admin123)
--- Password hash for 'admin123' using bcrypt
-INSERT INTO users (id, username, email, password_hash, role) 
-VALUES (
-    UUID(),
-    'admin',
-    'admin@motortrace.com',
-    '$2a$10$rH5Z8YqKqXlM2JvPGqO0eO5lZJxvXfXqXlM2JvPGqO0eO5lZJxvXf',
-    'admin'
-) ON DUPLICATE KEY UPDATE id=id;
