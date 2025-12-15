@@ -1,8 +1,5 @@
 -- Create admin user with correct bcrypt hash
 -- Password: admin123
-
-USE motortrace;
-
 -- Delete existing admin if any
 DELETE FROM users WHERE email = 'admin@motortrace.com';
 
