@@ -17,11 +17,9 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      # KRİTİK DÜZENLEME: Dosyaları isimlendirerek sıraya sokuyoruz.
-      # 1. Önce tablolar oluşsun (schema.sql)
-      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
-      # 2. Sonra admin eklensin (create_admin.sql)
-      - ./backend/database/create_admin.sql:/docker-entrypoint-initdb.d/02_create_admin.sql
+      # GÜNCELLEME: Dosyalar artik isimlendirildigi icin (01_.., 02_..)
+      # klasörü direkt bagliyoruz. MySQL alfabetik sirayla otomatik calistiracak.
+      - ./backend/database:/docker-entrypoint-initdb.d
     networks:
       - motortrace_network
     healthcheck:
