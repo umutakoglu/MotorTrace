@@ -25,8 +25,7 @@ services:
 
   # Backend API
   motortrace_backend:
-  backend:
-    build:
+      build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: motortrace_backend
