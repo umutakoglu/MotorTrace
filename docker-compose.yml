@@ -6,6 +6,8 @@ services:
     image: mysql:8.0
     container_name: motortrace_mysql
     restart: always
+    # Node.js mysql kütüphaneleriyle uyumluluk için native password plugin'ini zorluyoruz:
+    command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-rootpassword}
       MYSQL_DATABASE: ${DB_NAME:-motortrace}
@@ -15,7 +17,11 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./backend/database:/docker-entrypoint-initdb.d
+      # KRİTİK DÜZENLEME: Dosyaları isimlendirerek sıraya sokuyoruz.
+      # 1. Önce tablolar oluşsun (schema.sql)
+      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      # 2. Sonra admin eklensin (create_admin.sql)
+      - ./backend/database/create_admin.sql:/docker-entrypoint-initdb.d/02_create_admin.sql
     networks:
       - motortrace_network
     healthcheck:
@@ -33,22 +39,27 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       PORT: 5001
-      DB_HOST: mysql
+      DB_HOST: mysql # Service ismi ile eşleşmeli
       DB_USER: ${DB_USER:-motortrace_user}
       DB_PASSWORD: ${DB_PASSWORD:-rootpassword}
       DB_NAME: ${DB_NAME:-motortrace}
       JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-this}
+      # Frontend URL'i CORS ayarları için gerekebilir
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
     ports:
       - "5001:5001"
     volumes:
+      # Uploads klasörünü kaybetmemek için volume olarak tutuyoruz
       - ./backend/uploads:/app/uploads
+      # Geliştirme yaparken kodu canlı görmek isterseniz alt satırı açabilirsiniz:
+      # - ./backend:/app
     depends_on:
       mysql:
         condition: service_healthy
     networks:
       - motortrace_network
     healthcheck:
+      # Node script kullanarak healthcheck (curl gerektirmez, daha güvenli)
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:5001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
       interval: 30s
       timeout: 10s
@@ -59,6 +70,9 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      # React/Vue build sırasında API adresine ihtiyaç duyar
+      args:
+        REACT_APP_API_URL: http://localhost:5001
     container_name: motortrace_frontend
     restart: always
     ports:
