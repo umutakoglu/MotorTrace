@@ -18,7 +18,7 @@ const technicianRoutes = require('./routes/technician.routes');
 const roleRoutes = require('./routes/role.routes');
 
 const app = express();
-const PORT = process.env.PORT || 5001; // Changed from 5000 to avoid macOS AirPlay conflict
+const PORT = process.env.PORT || 5000;
 
 // Middleware - CORS Configuration
 app.use(cors({
@@ -69,7 +69,7 @@ const startServer = async () => {
     try {
         // Test database connection
         const dbConnected = await testConnection();
-        
+
         if (!dbConnected) {
             console.error('⚠️  Failed to connect to database. Please check your MySQL configuration.');
             console.log('📝 Make sure XAMPP MySQL is running and database is created.');

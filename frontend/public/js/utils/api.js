@@ -1,5 +1,5 @@
 // API Client - Dynamic URL based on where frontend is accessed from
-const API_BASE_URL = `http://${window.location.hostname}:5001/api`;
+const API_BASE_URL = `http://${window.location.hostname}:5000/api`;
 
 const API = {
     // Helper to make requests
@@ -60,68 +60,35 @@ const API = {
 
     // Motor endpoints
     motors: {
-        getAll: (params = {}) => {
-            const queryString = new URLSearchParams(params).toString();
-            return API.request(`/motors${queryString ? '?' + queryString : ''}`);
-        },
-
+        getAll: (params) => API.request('/motors', { params }),
         getById: (id) => API.request(`/motors/${id}`),
-
-        create: (motorData) => API.request('/motors', {
-            method: 'POST',
-            body: JSON.stringify(motorData)
-        }),
-
-        update: (id, motorData) => API.request(`/motors/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify(motorData)
-        }),
-
-        delete: (id) => API.request(`/motors/${id}`, {
-            method: 'DELETE'
-        }),
-
-        scan: (motorId) => API.request(`/motors/scan/${motorId}`),
-
-        downloadQR: (id) => `${API_BASE_URL}/motors/${id}/qr/download`,
-
-        generateQR: (id) => API.request(`/motors/${id}/generate-qr`, {
-            method: 'POST'
-        }),
-
-        generateAllQRs: () => API.request(`/motors/generate-all-qr`, {
-            method: 'POST'
-        })
+        create: (data) => API.request('/motors', { method: 'POST', body: JSON.stringify(data) }),
+        update: (id, data) => API.request(`/motors/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+        delete: (id) => API.request(`/motors/${id}`, { method: 'DELETE' }),
+        getStats: (params) => API.request('/motors/stats', { params }),
+        generateQR: (id) => API.request(`/motors/${id}/generate-qr`, { method: 'POST' }),
+        getQRDownloadUrl: (id) => `${API_BASE_URL}/motors/${id}/qr/download`,
+        generateAllQRs: () => API.request('/motors/generate-all-qr', { method: 'POST' })
     },
 
-    // Service endpoints
     services: {
         getMotorServices: (motorId) => API.request(`/services/motor/${motorId}`),
-
-        create: (motorId, serviceData) => API.request(`/services/motor/${motorId}`, {
+        getRecent: () => API.request('/services/recent'),
+        create: (motorId, data) => API.request(`/services/motor/${motorId}`, { method: 'POST', body: JSON.stringify(data) }),
+        update: (id, data) => API.request(`/services/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+        delete: (id) => API.request(`/services/${id}`, { method: 'DELETE' }),
+        uploadAttachment: (id, formData) => fetch(`${API_BASE_URL}/services/${id}/attachments`, {
             method: 'POST',
-            body: JSON.stringify(serviceData)
-        }),
-
-        update: (id, serviceData) => API.request(`/services/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify(serviceData)
-        }),
-
-        delete: (id) => API.request(`/services/${id}`, {
-            method: 'DELETE'
-        }),
-
-        uploadAttachment: (serviceId, formData) => API.request(`/services/${serviceId}/attachments`, {
-            method: 'POST',
-            body: formData // FormData for file upload
-        }),
-
-        deleteAttachment: (attachmentId) => API.request(`/services/attachments/${attachmentId}`, {
-            method: 'DELETE'
-        }),
-
-        getServiceReport: (serviceId) => `${API_BASE_URL}/services/${serviceId}/report`
+            headers: (() => {
+                const headers = {};
+                const token = Storage.getToken();
+                if (token) headers['Authorization'] = `Bearer ${token}`;
+                return headers;
+            })(),
+            body: formData
+        }).then(res => res.json()),
+        deleteAttachment: (attachmentId) => API.request(`/services/attachments/${attachmentId}`, { method: 'DELETE' }),
+        getServiceReport: (id) => `${API_BASE_URL}/services/${id}/report`
     },
 
     // User management endpoints (admin only)

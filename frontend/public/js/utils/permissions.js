@@ -4,7 +4,7 @@ const Permissions = {
     getCurrentUser: () => {
         const token = localStorage.getItem('token');
         if (!token) return null;
-        
+
         try {
             const payload = JSON.parse(atob(token.split('.')[1]));
             return payload;
@@ -15,43 +15,43 @@ const Permissions = {
 
     // Check if user has specific role
     hasRole: (...roles) => {
-        const user = Permissions.getCurrentUser();
+        const user = Storage.getUser();
         if (!user || !user.role) return false;
         return roles.includes(user.role);
     },
 
     // Motor permissions
     canViewMotors: () => {
-        return Permissions.hasRole('admin', 'user', 'technician');
+        return Permissions.hasRole('admin', 'amir', 'operator', 'technician');
     },
 
     canAddMotor: () => {
-        return Permissions.hasRole('admin', 'user');
+        return Permissions.hasRole('admin', 'amir', 'operator');
     },
 
     canEditMotor: () => {
-        return Permissions.hasRole('admin', 'user');
+        return Permissions.hasRole('admin', 'amir', 'operator');
     },
 
     canDeleteMotor: () => {
-        return Permissions.hasRole('admin');
+        return Permissions.hasRole('admin', 'amir');
     },
 
     // Service permissions
     canViewServices: () => {
-        return Permissions.hasRole('admin', 'user', 'technician');
+        return Permissions.hasRole('admin', 'amir', 'operator', 'technician');
     },
 
     canAddService: () => {
-        return Permissions.hasRole('admin', 'technician');
+        return Permissions.hasRole('admin', 'amir', 'technician');
     },
 
     canEditService: () => {
-        return Permissions.hasRole('admin', 'technician');
+        return Permissions.hasRole('admin', 'amir', 'technician');
     },
 
     canDeleteService: () => {
-        return Permissions.hasRole('admin');
+        return Permissions.hasRole('admin', 'amir', 'technician');
     },
 
     // Admin panel permissions
@@ -64,7 +64,7 @@ const Permissions = {
     },
 
     canAccessActivityLogs: () => {
-        return Permissions.hasRole('admin');
+        return Permissions.hasRole('admin', 'amir');
     },
 
     canAccessBulkImport: () => {
@@ -76,8 +76,12 @@ const Permissions = {
         return Permissions.hasRole('admin');
     },
 
-    isUser: () => {
-        return Permissions.hasRole('user');
+    isAmir: () => {
+        return Permissions.hasRole('amir');
+    },
+
+    isOperator: () => {
+        return Permissions.hasRole('operator');
     },
 
     isTechnician: () => {

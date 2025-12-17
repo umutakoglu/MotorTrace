@@ -11,6 +11,9 @@ router.use(authenticateToken);
 // Get all motors (all authenticated users)
 router.get('/', motorController.getAllMotors);
 
+// Get motor statistics (all authenticated users)
+router.get('/stats', motorController.getMotorStats);
+
 // Get motor by ID (all authenticated users)
 router.get('/:id', motorController.getMotorById);
 

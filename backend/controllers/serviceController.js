@@ -43,6 +43,26 @@ exports.getMotorServices = async (req, res, next) => {
     }
 };
 
+// Get recent services (last 5 global)
+exports.getRecentServices = async (req, res, next) => {
+    try {
+        const [services] = await promisePool.query(`
+            SELECT s.*, m.model, m.chassis_number, m.id as motor_id 
+            FROM service_history s
+            JOIN motors m ON s.motor_id = m.id
+            ORDER BY s.service_date DESC, s.created_at DESC
+            LIMIT 5
+        `);
+
+        res.json({
+            success: true,
+            data: services
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 // Create service record
 exports.createService = async (req, res, next) => {
     try {
@@ -85,10 +105,10 @@ exports.createService = async (req, res, next) => {
 
         // Generate service ID
         const serviceId = uuidv4();
-        
+
         // Get user ID if available (but don't require it)
         const userId = req.user?.userId || req.user?.id || null;
-        
+
         console.log('User ID for created_by:', userId);
 
         // Insert service record with created_by (can be NULL)

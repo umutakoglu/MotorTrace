@@ -15,10 +15,21 @@ const App = {
 
         // Initialize QR Scanner
         QRScannerComponent.init();
+
+        // Handle browser back/forward
+        window.addEventListener('popstate', (event) => {
+            if (event.state) {
+                App.navigate(event.state.route, event.state.params, false);
+            }
+        });
     },
 
     // Navigate to a route
-    navigate: async (route, params = null) => {
+    navigate: async (route, params = null, addToHistory = true) => {
+        if (addToHistory) {
+            history.pushState({ route, params }, '', `#${route}`);
+        }
+
         App.currentRoute = route;
         App.currentParams = params;
 
@@ -31,7 +42,7 @@ const App = {
 
         // Render the appropriate component
         let html = '';
-        
+
         switch (route) {
             case 'login':
                 html = AuthComponent.renderLogin();
@@ -90,7 +101,7 @@ const App = {
                     email: loginForm.email.value,
                     password: loginForm.password.value
                 };
-                
+
                 // Simple validation
                 if (!formData.email || !formData.password) {
                     document.getElementById('login-error').classList.remove('hidden');

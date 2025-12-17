@@ -34,7 +34,7 @@ const upload = multer({
         const allowedTypes = /jpeg|jpg|png|pdf|doc|docx/;
         const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
         const mimetype = allowedTypes.test(file.mimetype);
-        
+
         if (extname && mimetype) {
             return cb(null, true);
         } else {
@@ -45,6 +45,9 @@ const upload = multer({
 
 // All service routes require authentication
 router.use(authenticateToken);
+
+// Get recent services (global - all authenticated users)
+router.get('/recent', serviceController.getRecentServices);
 
 // Get services for a motor (all authenticated users)
 router.get('/motor/:motorId', serviceController.getMotorServices);

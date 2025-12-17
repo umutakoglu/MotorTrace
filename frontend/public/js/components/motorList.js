@@ -286,7 +286,7 @@ const MotorListComponent = {
                 </style>
             </head>
             <body>
-                <img src="http://${window.location.hostname}:5001/api/motors/${motorId}/qr/download" alt="QR Code" />
+                <img src="http://${window.location.hostname}:5000/api/motors/${motorId}/qr/download" alt="QR Code" />
                 <script>
                     window.onload = function() {
                         setTimeout(function() {

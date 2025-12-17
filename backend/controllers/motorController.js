@@ -82,6 +82,64 @@ exports.getAllMotors = async (req, res, next) => {
     }
 };
 
+
+
+// Get motor statistics (for dashboard analytics)
+exports.getMotorStats = async (req, res, next) => {
+    try {
+        const { period = 'monthly' } = req.query; // daily, weekly, monthly
+
+        let dateFormat;
+        let limit;
+        let groupBy;
+
+        // Determine date format and limit based on period
+        switch (period) {
+            case 'daily':
+                // Last 30 days
+                dateFormat = '%Y-%m-%d';
+                groupBy = `DATE_FORMAT(created_at, '${dateFormat}')`;
+                limit = 30;
+                break;
+            case 'weekly':
+                // Last 12 weeks
+                dateFormat = '%Y-%u'; // Year-Week
+                groupBy = `DATE_FORMAT(created_at, '${dateFormat}')`;
+                limit = 12;
+                break;
+            case 'monthly':
+            default:
+                // Last 12 months
+                dateFormat = '%Y-%m'; // Year-Month
+                groupBy = `DATE_FORMAT(created_at, '${dateFormat}')`;
+                limit = 12;
+                break;
+        }
+
+        const query = `
+            SELECT 
+                ${groupBy} as label,
+                COUNT(*) as count
+            FROM motors 
+            GROUP BY label
+            ORDER BY label DESC
+            LIMIT ?
+        `;
+
+        const [results] = await promisePool.query(query, [limit]);
+
+        // Fix order (ASC for chart)
+        results.reverse();
+
+        res.json({
+            success: true,
+            data: results
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 // Get single motor by ID
 exports.getMotorById = async (req, res, next) => {
     try {
