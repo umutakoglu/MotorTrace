@@ -8,12 +8,13 @@ package-lock.json
 .env.production
 
 # Database
-*.sql
+# Database
+# *.sql
 *.db
 *.sqlite
 
 # Uploads
-backend/uploads/
+# backend/uploads/
 
 # Logs
 logs/
