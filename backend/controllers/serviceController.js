@@ -71,7 +71,6 @@ exports.createService = async (req, res, next) => {
             service_date,
             service_type,
             description = '',
-            technician = '',
             cost = 0,
             parts_replaced = '',
             next_service_date = null,
@@ -106,10 +105,12 @@ exports.createService = async (req, res, next) => {
         // Generate service ID
         const serviceId = uuidv4();
 
-        // Get user ID if available (but don't require it)
+        // Get user ID and username from authenticated user
         const userId = req.user?.userId || req.user?.id || null;
+        const technicianName = req.user?.username || 'Unknown';
 
         console.log('User ID for created_by:', userId);
+        console.log('Technician (from logged-in user):', technicianName);
 
         // Insert service record with created_by (can be NULL)
         await promisePool.query(
@@ -123,7 +124,7 @@ exports.createService = async (req, res, next) => {
                 service_date,
                 service_type,
                 description,
-                technician,
+                technicianName,  // Use logged-in user's username
                 cost,
                 parts_replaced,
                 next_service_date,

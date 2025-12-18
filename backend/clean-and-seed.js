@@ -6,11 +6,11 @@ const fs = require('fs').promises;
 require('dotenv').config();
 
 const newSampleMotors = [
-    { model: 'Yamaha MT-07', year: 2024, color: '#000000', manufacturer: 'Yamaha', chassis: 'YMHTT0700001', engine: 'MT07E-1001' },
-    { model: 'Honda CRF 250L', year: 2023, color: '#FF0000', manufacturer: 'Honda', chassis: 'HNDCRF250001', engine: 'CRF25E-2002' },
-    { model: 'Kawasaki Z900', year: 2024, color: '#00FF00', manufacturer: 'Kawasaki', chassis: 'KWSZ90000001', engine: 'Z900E-3003' },
-    { model: 'Ducati Monster', year: 2022, color: '#C0C0C0', manufacturer: 'Ducati', chassis: 'DCTMNS000001', engine: 'MNSTE-4004' },
-    { model: 'Vespa GTS 300', year: 2023, color: '#FFFF00', manufacturer: 'Vespa', chassis: 'VSPGTS300001', engine: 'GTS30E-5005' }
+    { model: 'Yamaha MT-07', year: 2024, color: 'Siyah', manufacturer: 'Yamaha', chassis: 'YMHTT0700001', engine: 'MT07E-1001' },
+    { model: 'Honda CRF 250L', year: 2023, color: 'Kırmızı', manufacturer: 'Honda', chassis: 'HNDCRF250001', engine: 'CRF25E-2002' },
+    { model: 'Kawasaki Z900', year: 2024, color: 'Yeşil', manufacturer: 'Kawasaki', chassis: 'KWSZ90000001', engine: 'Z900E-3003' },
+    { model: 'Ducati Monster', year: 2022, color: 'Gümüş', manufacturer: 'Ducati', chassis: 'DCTMNS000001', engine: 'MNSTE-4004' },
+    { model: 'Vespa GTS 300', year: 2023, color: 'Sarı', manufacturer: 'Vespa', chassis: 'VSPGTS300001', engine: 'GTS30E-5005' }
 ];
 
 const cleanAndSeed = async () => {

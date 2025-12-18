@@ -19,13 +19,18 @@ const authenticateToken = (req, res, next) => {
             });
         }
 
+        console.log('[Auth Debug] Decoded JWT:', JSON.stringify(decoded, null, 2));
+
         // Store user info in request - ensure userId is properly extracted
         req.user = {
             id: decoded.userId || decoded.id, // Support both field names for compatibility
             userId: decoded.userId || decoded.id,
+            username: decoded.username,
             email: decoded.email,
             role: decoded.role || 'user'
         };
+
+        console.log('[Auth Debug] Set req.user:', JSON.stringify(req.user, null, 2));
         next();
     });
 };

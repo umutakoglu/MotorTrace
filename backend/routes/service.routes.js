@@ -55,17 +55,17 @@ router.get('/motor/:motorId', serviceController.getMotorServices);
 // Get service report (HTML for printing - all authenticated users)
 router.get('/:id/report', serviceController.getServiceReport);
 
-// Create service (admin and technician only, not user)
-router.post('/motor/:motorId', requireRole('admin', 'technician'), serviceController.createService);
+// Create service (admin, yonetici, and technician)
+router.post('/motor/:motorId', requireRole('admin', 'yonetici', 'technician'), serviceController.createService);
 
-// Update service (admin and technician only, not user)
-router.put('/:id', requireRole('admin', 'technician'), serviceController.updateService);
+// Update service (admin, yonetici, and technician)
+router.put('/:id', requireRole('admin', 'yonetici', 'technician'), serviceController.updateService);
 
-// Delete service (admin only)
-router.delete('/:id', requireAdmin, serviceController.deleteService);
+// Delete service (admin and yonetici only)
+router.delete('/:id', requireRole('admin', 'yonetici'), serviceController.deleteService);
 
-// Service attachments (admin and technician only)
-router.post('/:id/attachments', requireRole('admin', 'technician'), upload.single('file'), serviceController.uploadAttachment);
-router.delete('/attachments/:attachmentId', requireRole('admin', 'technician'), serviceController.deleteAttachment);
+// Service attachments (admin, yonetici, and technician)
+router.post('/:id/attachments', requireRole('admin', 'yonetici', 'technician'), upload.single('file'), serviceController.uploadAttachment);
+router.delete('/attachments/:attachmentId', requireRole('admin', 'yonetici', 'technician'), serviceController.deleteAttachment);
 
 module.exports = router;

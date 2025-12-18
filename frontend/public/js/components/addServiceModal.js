@@ -72,20 +72,6 @@ const AddServiceModal = {
                                 </select>
                             </div>
 
-                            <!-- Technician -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Teknisyen
-                                </label>
-                                <select 
-                                    name="technician" 
-                                    id="technician-select"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                >
-                                    <option value="">Yükleniyor...</option>
-                                </select>
-                            </div>
-
                             <!-- Cost -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -203,7 +189,6 @@ const AddServiceModal = {
 
         // Load service types and technicians
         AddServiceModal.loadServiceTypes();
-        AddServiceModal.loadTechnicians();
 
         // Close on background click
         const modal = document.getElementById('add-service-modal');
@@ -220,7 +205,7 @@ const AddServiceModal = {
         try {
             const response = await API.serviceTypes.getAll();
             const select = document.getElementById('service-type-select');
-            
+
             if (select && response.data) {
                 select.innerHTML = '<option value="">Seçiniz</option>' +
                     response.data.map(type => `<option value="${type.name}">${type.name}</option>`).join('');
@@ -230,30 +215,12 @@ const AddServiceModal = {
         }
     },
 
-    loadTechnicians: async () => {
-        try {
-            // Fetch all users and filter technicians client-side
-            const response = await API.users.getAll();
-            const select = document.getElementById('technician-select');
-            
-            if (select && response.data) {
-                // Filter users with technician role
-                const technicians = response.data.filter(user => user.role === 'technician');
-                
-                select.innerHTML = '<option value="">Seçiniz (Opsiyonel)</option>' +
-                    technicians.map(tech => `<option value="${tech.username}">${tech.username}</option>`).join('');
-            }
-        } catch (error) {
-            console.error('Technicians load error:', error);
-        }
-    },
-
     handleSubmit: async (e) => {
         e.preventDefault();
-        
+
         const form = e.target;
         const formData = new FormData(form);
-        
+
         // Convert FormData to object
         const serviceData = {};
         formData.forEach((value, key) => {
@@ -262,21 +229,27 @@ const AddServiceModal = {
             }
         });
 
+        // Get logged-in user info and add as technician
+        const user = Storage.getUser();
+        if (user && user.username) {
+            serviceData.technician = user.username;
+        }
+
         showLoading();
 
         try {
             // Create service
             const response = await API.services.create(AddServiceModal.motorId, serviceData);
-            
+
             if (response.success) {
                 const serviceId = response.data.id;
-                
+
                 // Upload attachment if provided
-                const fileInput = document. getElementById('service-attachment');
+                const fileInput = document.getElementById('service-attachment');
                 if (fileInput && fileInput.files.length > 0) {
                     const attachmentFormData = new FormData();
                     attachmentFormData.append('file', fileInput.files[0]);
-                    
+
                     try {
                         await API.services.uploadAttachment(serviceId, attachmentFormData);
                     } catch (error) {
@@ -284,11 +257,11 @@ const AddServiceModal = {
                         showToast('Servis kaydedildi ama dosya yüklenemedi', 'warning');
                     }
                 }
-                
+
                 hideLoading();
                 showToast('Servis başarıyla eklendi', 'success');
                 AddServiceModal.close();
-                
+
                 // Reload motor detail page
                 setTimeout(() => {
                     App.navigate('motor-detail', AddServiceModal.motorId);
@@ -303,3 +276,5 @@ const AddServiceModal = {
         }
     }
 };
+
+

@@ -5,6 +5,7 @@ const DashboardComponent = {
     recentMotors: [],
     recentServices: [],
     motorStats: [],
+    activityLogs: [],
     chartInstance: null,
 
     render: async () => {
@@ -20,15 +21,26 @@ const DashboardComponent = {
 
         // Fetch all dashboard data
         try {
-            const [motorsRes, servicesRes, statsRes] = await Promise.all([
+            const requests = [
                 API.motors.getAll({ page: 1, limit: 5 }),
                 API.services.getRecent(),
                 API.motors.getStats({ period: 'monthly' })
-            ]);
+            ];
+
+            // Add activity logs request for admin users
+            if (isAdmin) {
+                requests.push(API.activityLogs.getAll({ limit: 5 }));
+            }
+
+            const responses = await Promise.all(requests);
+            const [motorsRes, servicesRes, statsRes, logsRes] = responses;
 
             DashboardComponent.recentMotors = motorsRes.data.motors;
             DashboardComponent.recentServices = servicesRes.data;
             DashboardComponent.motorStats = statsRes.data;
+            if (isAdmin && logsRes) {
+                DashboardComponent.activityLogs = logsRes.data || [];
+            }
 
             DashboardComponent.stats = {
                 total: motorsRes.data.pagination.total,
@@ -118,10 +130,10 @@ const DashboardComponent = {
                 </div>
 
                 <!-- Main Content Grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="grid grid-cols-1 ${isAdmin ? 'lg:grid-cols-3' : 'lg:grid-cols-2'} gap-8">
                     
                     <!-- Left Column: Chart & Services -->
-                    <div class="space-y-8">
+                    <div class="space-y-8 ${isAdmin ? 'lg:col-span-2' : ''}">
                         <!-- Analytics Chart -->
                         <div class="glass-dark rounded-xl p-6 shadow-sm border border-gray-100">
                             <div class="flex items-center justify-between mb-6">
@@ -165,6 +177,42 @@ const DashboardComponent = {
                                 `}
                             </div>
                         </div>
+                        
+                        ${isAdmin ? `
+                            <!-- Activity Logs (Admin Only) -->
+                            <div class="glass-dark rounded-xl p-6 shadow-sm border border-gray-100">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h2 class="text-lg font-bold text-gray-900">Son Aktiviteler</h2>
+                                    <button onclick="App.navigate('activity-logs')" class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                                        Tümünü Gör
+                                    </button>
+                                </div>
+                                
+                                <div class="space-y-3" id="activity-logs-container">
+                                    ${DashboardComponent.activityLogs.length > 0 ? DashboardComponent.activityLogs.map(log => `
+                                        <div class="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition">
+                                            <div class="w-8 h-8 rounded-full ${DashboardComponent.getActivityIconColor(log.action)} flex items-center justify-center flex-shrink-0">
+                                                <i class="fas ${DashboardComponent.getActivityIcon(log.action)} text-xs"></i>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="flex justify-between items-start">
+                                                    <p class="text-sm text-gray-900">
+                                                        <span class="font-semibold">${log.username || 'Sistem'}</span>
+                                                        <span class="text-gray-600"> ${DashboardComponent.getActionText(log.action)}</span>
+                                                    </p>
+                                                    <span class="text-xs text-gray-400 ml-2">${DashboardComponent.formatTimeAgo(log.created_at)}</span>
+                                                </div>
+                                                <p class="text-xs text-gray-500 mt-0.5">${log.resource_type}</p>
+                                            </div>
+                                        </div>
+                                    `).join('') : `
+                                        <div class="text-center py-6 text-gray-400">
+                                            <p class="text-sm">Henüz aktivite kaydı yok</p>
+                                        </div>
+                                    `}
+                                </div>
+                            </div>
+                        ` : ''}
                     </div>
 
                     <!-- Right Column: Recent Motors -->
@@ -366,5 +414,54 @@ const DashboardComponent = {
         Storage.logout();
         showToast('Çıkış yapıldı', 'success');
         App.navigate('login');
+    },
+
+    // Activity log helper functions
+    getActivityIcon: (action) => {
+        const iconMap = {
+            'CREATE': 'fa-plus',
+            'UPDATE': 'fa-edit',
+            'DELETE': 'fa-trash',
+            'LOGIN': 'fa-sign-in-alt',
+            'LOGOUT': 'fa-sign-out-alt',
+            'VIEW': 'fa-eye'
+        };
+        return iconMap[action] || 'fa-circle';
+    },
+
+    getActivityIconColor: (action) => {
+        const colorMap = {
+            'CREATE': 'bg-green-100 text-green-600',
+            'UPDATE': 'bg-blue-100 text-blue-600',
+            'DELETE': 'bg-red-100 text-red-600',
+            'LOGIN': 'bg-purple-100 text-purple-600',
+            'LOGOUT': 'bg-gray-100 text-gray-600',
+            'VIEW': 'bg-yellow-100 text-yellow-600'
+        };
+        return colorMap[action] || 'bg-gray-100 text-gray-600';
+    },
+
+    getActionText: (action) => {
+        const textMap = {
+            'CREATE': 'oluşturdu',
+            'UPDATE': 'güncelledi',
+            'DELETE': 'sildi',
+            'LOGIN': 'giriş yaptı',
+            'LOGOUT': 'çıkış yaptı',
+            'VIEW': 'görüntüledi'
+        };
+        return textMap[action] || action.toLowerCase();
+    },
+
+    formatTimeAgo: (dateString) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const seconds = Math.floor((now - date) / 1000);
+
+        if (seconds < 60) return 'Az önce';
+        if (seconds < 3600) return `${Math.floor(seconds / 60)} dk önce`;
+        if (seconds < 86400) return `${Math.floor(seconds / 3600)} sa önce`;
+        if (seconds < 604800) return `${Math.floor(seconds / 86400)} gün önce`;
+        return date.toLocaleDateString('tr-TR');
     }
 };

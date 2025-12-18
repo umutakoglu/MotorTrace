@@ -17,14 +17,14 @@ router.get('/stats', motorController.getMotorStats);
 // Get motor by ID (all authenticated users)
 router.get('/:id', motorController.getMotorById);
 
-// Create motor (admin and user only, not technician)
-router.post('/', requireRole('admin', 'user'), motorController.createMotor);
+// Create motor (admin, yonetici, and operator)
+router.post('/', requireRole('admin', 'yonetici', 'operator'), motorController.createMotor);
 
-// Update motor (admin and user only, not technician)
-router.put('/:id', requireRole('admin', 'user'), motorController.updateMotor);
+// Update motor (admin and yonetici only)
+router.put('/:id', requireRole('admin', 'yonetici'), motorController.updateMotor);
 
-// Delete motor (admin only)
-router.delete('/:id', requireAdmin, motorController.deleteMotor);
+// Delete motor (admin and yonetici only)
+router.delete('/:id', requireRole('admin', 'yonetici'), motorController.deleteMotor);
 
 // QR code operations
 router.get('/:id/qr/download', motorController.downloadQRCode);

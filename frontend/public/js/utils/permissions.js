@@ -22,36 +22,36 @@ const Permissions = {
 
     // Motor permissions
     canViewMotors: () => {
-        return Permissions.hasRole('admin', 'amir', 'operator', 'technician');
+        return Permissions.hasRole('admin', 'yonetici', 'operator', 'technician');
     },
 
     canAddMotor: () => {
-        return Permissions.hasRole('admin', 'amir', 'operator');
+        return Permissions.hasRole('admin', 'yonetici', 'operator');
     },
 
     canEditMotor: () => {
-        return Permissions.hasRole('admin', 'amir', 'operator');
+        return Permissions.hasRole('admin', 'yonetici');
     },
 
     canDeleteMotor: () => {
-        return Permissions.hasRole('admin', 'amir');
+        return Permissions.hasRole('admin', 'yonetici');
     },
 
     // Service permissions
     canViewServices: () => {
-        return Permissions.hasRole('admin', 'amir', 'operator', 'technician');
+        return Permissions.hasRole('admin', 'yonetici', 'operator', 'technician');
     },
 
     canAddService: () => {
-        return Permissions.hasRole('admin', 'amir', 'technician');
+        return Permissions.hasRole('admin', 'yonetici', 'technician');
     },
 
     canEditService: () => {
-        return Permissions.hasRole('admin', 'amir', 'technician');
+        return Permissions.hasRole('admin', 'yonetici', 'technician');
     },
 
     canDeleteService: () => {
-        return Permissions.hasRole('admin', 'amir', 'technician');
+        return Permissions.hasRole('admin', 'yonetici');
     },
 
     // Admin panel permissions
@@ -64,7 +64,7 @@ const Permissions = {
     },
 
     canAccessActivityLogs: () => {
-        return Permissions.hasRole('admin', 'amir');
+        return Permissions.hasRole('admin');
     },
 
     canAccessBulkImport: () => {
@@ -76,8 +76,8 @@ const Permissions = {
         return Permissions.hasRole('admin');
     },
 
-    isAmir: () => {
-        return Permissions.hasRole('amir');
+    isYonetici: () => {
+        return Permissions.hasRole('yonetici');
     },
 
     isOperator: () => {

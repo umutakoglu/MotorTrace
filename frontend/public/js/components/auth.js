@@ -20,13 +20,13 @@ const AuthComponent = {
                         <form id="login-form" class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Email veya Kullanıcı Adı
+                                    Email
                                 </label>
                                 <input 
                                     type="text" 
                                     name="email" 
                                     class="input-field"
-                                    placeholder="admin veya admin@motortrace.com"
+                                    placeholder="email@example.com"
                                     required
                                 />
                             </div>
@@ -65,13 +65,6 @@ const AuthComponent = {
                             </p>
                         </div>
 
-                        <!-- Demo Credentials -->
-                        <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                            <p class="text-sm text-gray-800 text-center font-medium">
-                                <i class="fas fa-info-circle mr-1 text-blue-600"></i>
-                                Demo: <strong class="text-blue-700">admin / admin</strong> veya admin@motortrace.com / admin123
-                            </p>
-                        </div>
                         
                         <!-- Version -->
                         <div class="mt-4 text-center">
@@ -182,11 +175,11 @@ const AuthComponent = {
     handleLogin: async (formData) => {
         try {
             const response = await API.auth.login(formData);
-            
+
             // Save token and user
             Storage.setToken(response.data.token);
             Storage.setUser(response.data.user);
-            
+
             showToast('Giriş başarılı!', 'success');
             App.navigate('dashboard');
         } catch (error) {
@@ -199,11 +192,11 @@ const AuthComponent = {
     handleRegister: async (formData) => {
         try {
             const response = await API.auth.register(formData);
-            
+
             // Save token and user
             Storage.setToken(response.data.token);
             Storage.setUser(response.data.user);
-            
+
             showToast('Kayıt başarılı!', 'success');
             App.navigate('dashboard');
         } catch (error) {
