@@ -63,7 +63,6 @@ services:
     container_name: motortrace_frontend
     restart: always
     environment:
-        # Build args yerine environment kullanmayı deneyelim (Nginx yönlendirmesi için)
         REACT_APP_API_URL: ${API_URL}
     ports:
       - "3000:80"
@@ -72,18 +71,15 @@ services:
     networks:
       - motortrace_network
 
-  # Nginx Reverse Proxy
+  # Nginx Reverse Proxy (GÜNCELLENDİ)
   nginx:
-    image: nginx:alpine
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
     container_name: motortrace_nginx
     restart: always
     ports:
       - "80:80"
-    volumes:
-      # İŞTE SİHİRLİ DEĞİŞİKLİK BURADA:
-      # Docker sunucudaki bozuk 'nginx.conf' klasörünü değil,
-      # yeni oluşturduğumuz 'app.conf' dosyasını okuyacak.
-      - ./nginx/app.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - frontend
       - motortrace_backend
