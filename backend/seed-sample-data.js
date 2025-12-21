@@ -21,7 +21,22 @@ const insertSampleData = async () => {
     try {
         console.log('🏍️  Adding sample motor data...\n');
 
-        const adminUserId = '550e8400-e29b-41d4-a716-446655440000';
+        // Find admin user dynamically
+        const [users] = await promisePool.query('SELECT id FROM users WHERE email = ?', ['admin@motortrace.com']);
+
+        let adminUserId;
+        if (users.length > 0) {
+            adminUserId = users[0].id;
+        } else {
+            console.log('⚠️  Admin user not found, checking for any user...');
+            const [anyUser] = await promisePool.query('SELECT id FROM users LIMIT 1');
+            if (anyUser.length > 0) {
+                adminUserId = anyUser[0].id;
+            } else {
+                console.error('❌ No users found in database. Please run setup first.');
+                process.exit(1);
+            }
+        }
 
         // Create uploads directory for QR codes
         const qrDir = path.join(__dirname, 'uploads/qr-codes');
