@@ -180,4 +180,10 @@ function showToast(message, type = 'info') {
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     App.init();
+
+    // Initialize footer component
+    if (typeof Footer !== 'undefined') {
+        Footer.init();
+    }
 });
+```
