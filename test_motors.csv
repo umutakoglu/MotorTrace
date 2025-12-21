@@ -1,0 +1,11 @@
+chassis_number,engine_number,color,model,year,manufacturer,status,notes
+HC5001TR2024001,ENG500RCBR001,Kırmızı,CBR500R,2024,Honda,in_stock,Yeni model sportif motor
+YMT071TR2023045,ENG700MT07045,Mavi,MT-07,2023,Yamaha,sold,2024 başında satıldı
+KN6501TR2024012,ENG650N6012,Yeşil,Ninja 650,2024,Kawasaki,in_stock,Performans odaklı
+SG7501TR2022089,ENG750GSX089,Beyaz,GSX-R750,2022,Suzuki,in_service,Bakımda
+BS1001TR2024003,ENG1000BMW003,Siyah,S1000RR,2024,BMW,in_stock,Premium model
+DP9561TR2023027,ENG956DUC027,Kırmızı,Panigale V2,2023,Ducati,sold,Koleksiyoncu müşteriye satıldı
+KD3901TR2024056,ENG390KTM056,Turuncu,Duke 390,2024,KTM,in_stock,Giriş seviyesi
+TS7651TR2023033,ENG765TRI033,Gri,Street Triple,2023,Triumph,in_stock,Naked bike
+AR6601TR2024019,ENG660APR019,Gümüş,RS 660,2024,Aprilia,in_service,İlk servis
+HS1201TR2021078,ENG1200HD078,Kahverengi,Sportster S,2021,Harley-Davidson,scrapped,Kaza sonrası hurda
