@@ -1,5 +1,5 @@
 // API Client - Dynamic URL based on where frontend is accessed from
-const API_BASE_URL = `http://${window.location.hostname}:5000/api`;
+const API_BASE_URL = '/api';
 
 const API = {
     // Helper to make requests
