@@ -3,6 +3,7 @@ const QRCode = require('qrcode');
 const path = require('path');
 const fs = require('fs').promises;
 const { promisePool } = require('../config/database');
+const { logActivity } = require('./activityLogController');
 
 // Get all motors with pagination and filtering
 exports.getAllMotors = async (req, res, next) => {
@@ -263,6 +264,17 @@ exports.createMotor = async (req, res, next) => {
             [motorId]
         );
 
+        // Log activity
+        await logActivity(
+            req.user.id,
+            'CREATE',
+            'motor',
+            motorId,
+            JSON.stringify({ model, chassis_number, engine_number, color, year }),
+            req.ip || req.headers['cf-connecting-ip'] || req.headers['x-real-ip'] || req.connection.remoteAddress,
+            req.headers['user-agent']
+        );
+
         res.status(201).json({
             success: true,
             message: 'Motor created successfully',
@@ -341,6 +353,17 @@ exports.updateMotor = async (req, res, next) => {
             [id]
         );
 
+        // Log activity
+        await logActivity(
+            req.user.id,
+            'UPDATE',
+            'motor',
+            id,
+            JSON.stringify(req.body),
+            req.ip || req.headers['cf-connecting-ip'] || req.headers['x-real-ip'] || req.connection.remoteAddress,
+            req.headers['user-agent']
+        );
+
         res.json({
             success: true,
             message: 'Motor updated successfully',
@@ -379,6 +402,17 @@ exports.deleteMotor = async (req, res, next) => {
         } catch (err) {
             // File might not exist
         }
+
+        // Log activity
+        await logActivity(
+            req.user.id,
+            'DELETE',
+            'motor',
+            id,
+            null,
+            req.ip || req.headers['cf-connecting-ip'] || req.headers['x-real-ip'] || req.connection.remoteAddress,
+            req.headers['user-agent']
+        );
 
         res.json({
             success: true,

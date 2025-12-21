@@ -1,5 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 const { promisePool } = require('../config/database');
+const { logActivity } = require('./activityLogController');
 
 // Get all service records for a motor
 exports.getMotorServices = async (req, res, next) => {
@@ -139,6 +140,17 @@ exports.createService = async (req, res, next) => {
             [serviceId]
         );
 
+        // Log activity
+        await logActivity(
+            userId,
+            'CREATE',
+            'service',
+            serviceId,
+            JSON.stringify({ service_type, motorId, cost }),
+            req.ip || req.headers['cf-connecting-ip'] || req.headers['x-real-ip'] || req.connection.remoteAddress,
+            req.headers['user-agent']
+        );
+
         res.status(201).json({
             success: true,
             message: 'Service record created successfully',
@@ -210,6 +222,17 @@ exports.updateService = async (req, res, next) => {
             [id]
         );
 
+        // Log activity
+        await logActivity(
+            req.user.id,
+            'UPDATE',
+            'service',
+            id,
+            JSON.stringify(req.body),
+            req.ip || req.headers['cf-connecting-ip'] || req.headers['x-real-ip'] || req.connection.remoteAddress,
+            req.headers['user-agent']
+        );
+
         res.json({
             success: true,
             message: 'Service record updated successfully',
@@ -238,6 +261,17 @@ exports.deleteService = async (req, res, next) => {
         }
 
         await promisePool.query('DELETE FROM service_history WHERE id = ?', [id]);
+
+        // Log activity
+        await logActivity(
+            req.user.id,
+            'DELETE',
+            'service',
+            id,
+            null,
+            req.ip || req.headers['cf-connecting-ip'] || req.headers['x-real-ip'] || req.connection.remoteAddress,
+            req.headers['user-agent']
+        );
 
         res.json({
             success: true,
