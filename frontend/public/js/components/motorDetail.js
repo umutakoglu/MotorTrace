@@ -180,7 +180,7 @@ const MotorDetailComponent = {
                                 <!-- QR Code exists -->
                                 <div class="bg-white p-4 rounded-lg border-2 border-gray-200 mb-4">
                                     <img 
-                                        src="http://${window.location.hostname}:5000${motor.qrCode.qr_image_path}" 
+                                        src="${motor.qrCode.qr_image_path}" 
                                         alt="Motor QR Code"
                                         class="w-full h-auto"
                                         onerror="this.parentElement.innerHTML='<div class=\\'p-8 text-center text-gray-400\\'>QR görsel yüklenemedi<br><small>${motor.qrCode.qr_image_path}</small></div>'"
@@ -188,7 +188,7 @@ const MotorDetailComponent = {
                                 </div>
 
                                 <a 
-                                    href="http://${window.location.hostname}:5000/api/motors/${motor.id}/qr/download" 
+                                    href="/api/motors/${motor.id}/qr/download" 
                                     download="motor-qr-${motor.chassis_number}.png"
                                     target="_blank"
                                     class="btn-primary w-full block text-center">
@@ -270,7 +270,7 @@ const MotorDetailComponent = {
                                 ${service.attachments && service.attachments.length > 0 ? `
                                     <div class="mt-3 flex flex-wrap gap-2">
                                         ${service.attachments.map(att => `
-                                            <a href="http://${window.location.hostname}:5000${att.file_path}" 
+                                            <a href="${att.file_path}" 
                                                target="_blank"
                                                class="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-sm hover:bg-blue-100">
                                                 <i class="fas fa-paperclip"></i>
@@ -384,7 +384,7 @@ const MotorDetailComponent = {
             <body>
                 <div class="qr-container">
                     <h2>${motor.model}</h2>
-                    <img src="http://${window.location.hostname}:5000/api/motors/${motor.id}/qr/download" 
+                    <img src="/api/motors/${motor.id}/qr/download" 
                          alt="QR Code" 
                          onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22300%22><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22>QR Yüklenemedi</text></svg>'" />
                     <div class="info">
