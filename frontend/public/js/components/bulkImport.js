@@ -19,18 +19,12 @@ const BulkImportComponent = {
         return `
             <div class="min-h-screen p-4 md:p-8">
                 <!-- Header -->
-                <div class="mb-8">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h1 class="text-4xl font-bold text-gray-900 mb-2">Toplu Motor Ekleme</h1>
-                            <p class="text-gray-600">Excel dosyası ile birden fazla motor ekleyin</p>
-                        </div>
-                        <button onclick="App.navigate('motors')" class="btn-secondary">
-                            <i class="fas fa-arrow-left mr-2"></i>
-                            Geri Dön
-                        </button>
-                    </div>
-                </div>
+                ${Header.render({
+            title: 'Toplu Motor Ekleme',
+            subtitle: 'Excel dosyası ile birden fazla motor ekleyin',
+            backButton: { onclick: "App.navigate('motors')" },
+            actions: ``  // Template download moved inside the upload card for better UX
+        })}
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Instructions Card -->
@@ -220,7 +214,7 @@ const BulkImportComponent = {
 
     showResults: (data, success) => {
         const resultsDiv = document.getElementById('upload-results');
-        
+
         if (success && data.summary) {
             resultsDiv.innerHTML = `
                 <div class="p-6 bg-green-50 border border-green-200 rounded-lg">
@@ -250,7 +244,7 @@ const BulkImportComponent = {
                     ` : ''}
                 </div>
             `;
-            
+
             if (data.summary.successful > 0) {
                 showToast(`${data.summary.successful} motor başarıyla eklendi!`, 'success');
             }

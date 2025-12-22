@@ -17,6 +17,8 @@ const MotorFormComponent = {
                 App.navigate('motors');
                 return '';
             }
+        } else {
+            MotorFormComponent.motor = null;
         }
 
         const motor = MotorFormComponent.motor || {};
@@ -24,22 +26,12 @@ const MotorFormComponent = {
         return `
             <div class="min-h-screen p-4 md:p-8">
                 <!-- Header -->
-                <div class="mb-8">
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <h1 class="text-4xl font-bold text-black mb-2">
-                                ${isEditMode ? 'Motor Düzenle' : 'Yeni Motor Ekle'}
-                            </h1>
-                            <p class="text-gray-600">
-                                ${isEditMode ? 'Motor bilgilerini güncelleyin' : 'Sisteme yeni motor ekleyin'}
-                            </p>
-                        </div>
-                        <button onclick="App.navigate('motors')" class="btn-secondary">
-                            <i class="fas fa-arrow-left mr-2"></i>
-                            Geri Dön
-                        </button>
-                    </div>
-                </div>
+                ${Header.render({
+            title: isEditMode ? 'Motor Düzenle' : 'Yeni Motor Ekle',
+            subtitle: isEditMode ? 'Motor bilgilerini güncelleyin' : 'Sisteme yeni motor ekleyin',
+            backButton: { onclick: "App.navigate('motors')" },
+            actions: `` // No specific actions for this page
+        })}
 
                 <!-- Form -->
                 <div class="max-w-4xl mx-auto">
