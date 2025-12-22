@@ -68,6 +68,15 @@ const API = {
         getStats: (params) => API.request('/motors/stats', { params }),
         generateQR: (id) => API.request(`/motors/${id}/generate-qr`, { method: 'POST' }),
         getQRDownloadUrl: (id) => `${API_BASE_URL}/motors/${id}/qr/download`,
+        downloadQR: (id) => fetch(`${API_BASE_URL}/motors/${id}/qr/download`, {
+            method: 'GET',
+            headers: (() => {
+                const headers = {};
+                const token = Storage.getToken();
+                if (token) headers['Authorization'] = `Bearer ${token}`;
+                return headers;
+            })()
+        }),
         generateAllQRs: () => API.request('/motors/generate-all-qr', { method: 'POST' })
     },
 
