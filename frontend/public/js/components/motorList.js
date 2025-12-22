@@ -25,9 +25,14 @@ const MotorListComponent = {
             subtitle: 'Tüm motorları görüntüle ve yönet',
             backButton: { onclick: "App.navigate('dashboard')" },
             actions: `
+                        <button onclick="MotorListComponent.downloadExcel()" class="btn-secondary">
+                            <i class="fas fa-file-excel text-green-600 hidden md:block md:mr-2"></i>
+                            <span class="hidden md:inline">Excel İndir</span>
+                            <span class="md:hidden"><i class="fas fa-file-excel text-green-600"></i></span>
+                        </button>
                         ${Permissions.canAccessBulkImport() ? `
                             <button onclick="App.navigate('bulk-import')" class="btn-secondary">
-                                <i class="fas fa-file-excel hidden md:block md:mr-2"></i>
+                                <i class="fas fa-upload hidden md:block md:mr-2"></i>
                                 <span class="hidden md:inline">İçe Aktar</span>
                                 <span class="md:hidden">Import</span>
                             </button>
