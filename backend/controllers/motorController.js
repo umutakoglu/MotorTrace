@@ -423,6 +423,83 @@ exports.deleteMotor = async (req, res, next) => {
     }
 };
 
+// Export motors to Excel
+exports.exportExcel = async (req, res, next) => {
+    try {
+        const ExcelJS = require('exceljs');
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Motor Listesi');
+
+        // Define columns
+        worksheet.columns = [
+            { header: 'ID', key: 'id', width: 36 },
+            { header: 'Kullanıcı', key: 'username', width: 20 },
+            { header: 'Marka', key: 'manufacturer', width: 15 },
+            { header: 'Model', key: 'model', width: 20 },
+            { header: 'Yıl', key: 'year', width: 10 },
+            { header: 'Şase No', key: 'chassis_number', width: 25 },
+            { header: 'Motor No', key: 'engine_number', width: 25 },
+            { header: 'Renk', key: 'color', width: 15 },
+            { header: 'Durum', key: 'status', width: 15 },
+            { header: 'Oluşturulma Tarihi', key: 'created_at', width: 20 }
+        ];
+
+        // Style header row
+        worksheet.getRow(1).font = { bold: true };
+        worksheet.getRow(1).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFEEEEEE' }
+        };
+
+        // Fetch all motors with user info
+        const [motors] = await promisePool.query(`
+            SELECT m.*, u.username
+            FROM motors m
+            LEFT JOIN users u ON m.user_id = u.id
+            ORDER BY m.created_at DESC
+        `);
+
+        // Add rows
+        motors.forEach(motor => {
+            worksheet.addRow({
+                id: motor.id,
+                username: motor.username,
+                manufacturer: motor.manufacturer,
+                model: motor.model,
+                year: motor.year,
+                chassis_number: motor.chassis_number,
+                engine_number: motor.engine_number,
+                color: motor.color,
+                status: motor.status,
+                created_at: motor.created_at
+            });
+        });
+
+        // Set response headers
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=motor-listesi.xlsx');
+
+        // Log export activity
+        await logActivity(
+            req.user.id,
+            'EXPORT',
+            'motor',
+            null,
+            'Excel list exported',
+            req.ip || req.headers['cf-connecting-ip'] || req.headers['x-real-ip'] || req.connection.remoteAddress,
+            req.headers['user-agent']
+        );
+
+        // Write to response
+        await workbook.xlsx.write(res);
+        res.end();
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 // Get motor by QR scan
 exports.scanQRCode = async (req, res, next) => {
     try {

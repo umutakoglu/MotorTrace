@@ -14,6 +14,9 @@ router.get('/', motorController.getAllMotors);
 // Get motor statistics (all authenticated users)
 router.get('/stats', motorController.getMotorStats);
 
+// Export motors to Excel (all authenticated users)
+router.get('/export/excel', motorController.exportExcel);
+
 // Get motor by ID (all authenticated users)
 router.get('/:id', motorController.getMotorById);
 

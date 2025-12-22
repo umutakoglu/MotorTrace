@@ -77,6 +77,15 @@ const API = {
                 return headers;
             })()
         }),
+        downloadExcel: () => fetch(`${API_BASE_URL}/motors/export/excel`, {
+            method: 'GET',
+            headers: (() => {
+                const headers = {};
+                const token = Storage.getToken();
+                if (token) headers['Authorization'] = `Bearer ${token}`;
+                return headers;
+            })()
+        }),
         generateAllQRs: () => API.request('/motors/generate-all-qr', { method: 'POST' })
     },
 
