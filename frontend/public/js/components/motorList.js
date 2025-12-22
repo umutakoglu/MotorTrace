@@ -94,7 +94,8 @@ const MotorListComponent = {
                 <!-- Motors Table -->
                 <div class="glass-dark rounded-xl overflow-hidden">
                     ${MotorListComponent.motors.length > 0 ? `
-                        <div class="overflow-x-auto">
+                        <!-- Desktop Table View (hidden on mobile) -->
+                        <div class="overflow-x-auto hidden md:block">
                             <table class="table">
                                 <thead>
                                     <tr>
@@ -154,6 +155,64 @@ const MotorListComponent = {
                                     `).join('')}
                                 </tbody>
                             </table>
+                        </div>
+
+                        <!-- Mobile Card View (hidden on desktop) -->
+                        <div class="block md:hidden p-4 space-y-4">
+                            ${MotorListComponent.motors.map(motor => `
+                                <div class="bg-white rounded-lg p-4 shadow-md border border-gray-200">
+                                    <!-- Header -->
+                                    <div class="flex items-start justify-between mb-3">
+                                        <div class="flex-1">
+                                            <h3 class="font-bold text-lg text-gray-900">${motor.model}</h3>
+                                            <p class="text-sm text-gray-600">${motor.year} • ${motor.color}</p>
+                                        </div>
+                                        <span class="badge badge-${MotorListComponent.getStatusClass(motor.status)}">
+                                            ${MotorListComponent.getStatusText(motor.status)}
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- Details -->
+                                    <div class="space-y-2 mb-4">
+                                        <div class="flex items-center text-sm">
+                                            <span class="text-gray-600 w-24">Şase No:</span>
+                                            <code class="text-xs bg-gray-100 px-2 py-1 rounded">${motor.chassis_number}</code>
+                                        </div>
+                                        <div class="flex items-center text-sm">
+                                            <span class="text-gray-600 w-24">Motor No:</span>
+                                            <code class="text-xs bg-gray-100 px-2 py-1 rounded">${motor.engine_number}</code>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Actions -->
+                                    <div class="flex gap-2 pt-3 border-t border-gray-200">
+                                        <button 
+                                            onclick="App.navigate('motor-detail', '${motor.id}')"
+                                            class="flex-1 btn-secondary text-sm py-2">
+                                            <i class="fas fa-eye mr-1"></i>
+                                            Detay
+                                        </button>
+                                        <button 
+                                            onclick="MotorListComponent.printQR('${motor.id}', '${motor.model.replace(/'/g, "\\\'")}', '${motor.chassis_number}', '${motor.engine_number}', '${motor.year}')"
+                                            class="flex-1 btn-secondary text-sm py-2">
+                                            <i class="fas fa-print mr-1"></i>
+                                            QR
+                                        </button>
+                                        ${isAdmin ? `
+                                            <button 
+                                                onclick="App.navigate('motor-edit', '${motor.id}')"
+                                                class="btn-secondary text-sm py-2 px-3">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button 
+                                                onclick="MotorListComponent.deleteMotor('${motor.id}')"
+                                                class="btn-secondary text-sm py-2 px-3 text-red-600 border-red-600">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
                         </div>
 
                         <!-- Pagination -->
