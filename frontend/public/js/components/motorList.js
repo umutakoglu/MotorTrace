@@ -324,38 +324,98 @@ const MotorListComponent = {
             <!DOCTYPE html>
             <html>
             <head>
-                <title>QR Kod</title>
+                <title>QR Kod - ${model}</title>
                 <style>
                     * { margin: 0; padding: 0; box-sizing: border-box; }
                     body {
                         display: flex;
+                        flex-direction: column;
                         justify-content: center;
                         align-items: center;
                         min-height: 100vh;
                         background: white;
+                        font-family: Arial, sans-serif;
+                        padding: 20px;
+                    }
+                    .qr-container {
+                        text-align: center;
+                        max-width: 500px;
                     }
                     img {
-                        max-width: 400px;
-                        width: 100%;
-                        height: auto;
+                        width: 300px;
+                        height: 300px;
+                        margin: 20px 0;
+                        display: block;
+                        border: 2px solid #ddd;
+                        padding: 10px;
+                    }
+                    h2 {
+                        color: #333;
+                        margin-bottom: 10px;
+                        font-size: 24px;
+                    }
+                    .info {
+                        color: #666;
+                        font-size: 14px;
+                        margin: 5px 0;
+                    }
+                    .loading {
+                        color: #999;
+                        font-size: 14px;
                     }
                     @media print {
-                        body { padding: 0; margin: 0; }
+                        body { 
+                            padding: 0; 
+                            margin: 0; 
+                        }
+                        .loading {
+                            display: none;
+                        }
                     }
                 </style>
             </head>
             <body>
-                <img src="/api/motors/${motorId}/qr/download" alt="QR Code" />
+                <div class="qr-container">
+                    <h2>${model}</h2>
+                    <div class="info">Yıl: ${year}</div>
+                    <div class="info">Şase: ${chassisNumber}</div>
+                    <div class="info">Motor: ${engineNumber}</div>
+                    <img id="qrImage" src="/api/motors/${motorId}/qr/download" alt="QR Code" />
+                    <p class="loading" id="loadingText">QR kod yükleniyor...</p>
+                </div>
                 <script>
-                    window.onload = function() {
+                    const img = document.getElementById('qrImage');
+                    const loadingText = document.getElementById('loadingText');
+                    
+                    // Wait for image to load before printing
+                    img.onload = function() {
+                        loadingText.style.display = 'none';
                         setTimeout(function() {
                             window.print();
                             // Clean up after printing
                             setTimeout(function() {
                                 window.parent.document.body.removeChild(window.frameElement);
-                            }, 100);
-                        }, 500);
+                            }, 500);
+                        }, 300);
                     };
+                    
+                    // Handle image load error
+                    img.onerror = function() {
+                        loadingText.textContent = 'QR kod yüklenemedi. Lütfen tekrar deneyin.';
+                        loadingText.style.color = 'red';
+                        setTimeout(function() {
+                            window.parent.document.body.removeChild(window.frameElement);
+                            window.parent.showToast('QR kod yüklenemedi', 'error');
+                        }, 2000);
+                    };
+                    
+                    // Timeout fallback
+                    setTimeout(function() {
+                        if (loadingText.style.display !== 'none') {
+                            loadingText.textContent = 'QR kod yükleme zaman aşımı';
+                            loadingText.style.color = 'orange';
+                        }
+                    }, 5000);
                 </script>
             </body>
             </html>
