@@ -20,36 +20,26 @@ const MotorListComponent = {
         return `
             <div class="min-h-screen p-4 md:p-8">
                 <!-- Header -->
-                <div class="mb-8">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div>
-                            <h1 class="text-4xl font-bold text-black mb-2">Motor Listesi</h1>
-                            <p class="text-gray-600">Tüm motorları görüntüle ve yönet</p>
-                        </div>
-                        <div class="flex gap-3">
-                            <button onclick="App.navigate('dashboard')" class="btn-secondary">
-                                <i class="fas fa-arrow-left mr-2"></i>
-                                Dashboard
+                ${Header.render({
+            title: 'Motor Listesi',
+            subtitle: 'Tüm motorları görüntüle ve yönet',
+            backButton: { onclick: "App.navigate('dashboard')" },
+            actions: `
+                        ${Permissions.canAccessBulkImport() ? `
+                            <button onclick="App.navigate('bulk-import')" class="btn-secondary">
+                                <i class="fas fa-file-excel hidden md:block md:mr-2"></i>
+                                <span class="hidden md:inline">İçe Aktar</span>
+                                <span class="md:hidden">Import</span>
                             </button>
-                            ${Permissions.canAccessBulkImport() ? `
-                                <button onclick="App.navigate('bulk-import')" class="btn-secondary">
-                                    <i class="fas fa-file-excel mr-2"></i>
-                                    Toplu İçe Aktar
-                                </button>
-                            ` : ''}
-                            ${Permissions.canAddMotor() ? `
-                                <button onclick="App.navigate('motor-new')" class="btn-primary">
-                                    <i class="fas fa-plus mr-2"></i>
-                                    Yeni Motor
-                                </button>
-                            ` : ''}
-                            <button onclick="DashboardComponent.logout()" class="btn-secondary">
-                                <i class="fas fa-sign-out-alt mr-2"></i>
-                                Çıkış
+                        ` : ''}
+                        ${Permissions.canAddMotor() ? `
+                            <button onclick="App.navigate('motor-new')" class="btn-primary">
+                                <i class="fas fa-plus md:mr-2"></i>
+                                <span class="hidden md:inline">Yeni Motor</span>
                             </button>
-                        </div>
-                    </div>
-                </div>
+                        ` : ''}
+                    `
+        })}
 
                 <!-- Filters -->
                 <div class="glass-dark rounded-xl p-6 mb-6">

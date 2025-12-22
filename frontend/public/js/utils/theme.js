@@ -24,6 +24,9 @@ const Theme = {
             document.documentElement.classList.remove('dark');
         }
         localStorage.setItem(Theme.STORAGE_KEY, theme);
+
+        // Dispatch event for components to react
+        window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme } }));
     },
 
     // Get current theme

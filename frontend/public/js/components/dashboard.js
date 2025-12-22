@@ -53,35 +53,32 @@ const DashboardComponent = {
         // Initialize chart after render
         setTimeout(() => {
             DashboardComponent.initChart();
+
+            // Listen for theme changes to update chart
+            window.addEventListener('themeChanged', () => {
+                DashboardComponent.initChart();
+            }, { once: true }); // Avoid multiple listeners
         }, 100);
 
         return `
             <div class="min-h-screen p-4 md:p-8">
                 <!-- Header -->
-                <div class="mb-8">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div>
-                            <h1 class="text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
-                            <p class="text-gray-600">Hoş geldiniz, ${user.username}!</p>
-                        </div>
-                        <div class="flex gap-3">
-                            ${isAdmin ? `
-                                <button onclick="App.navigate('motor-new')" class="btn-primary">
-                                    <i class="fas fa-plus mr-2"></i>
-                                    Yeni Motor
-                                </button>
-                            ` : ''}
-                            <button onclick="DashboardComponent.startQRScan()" class="btn-secondary">
-                                <i class="fas fa-qrcode mr-2"></i>
-                                QR Oku
+                ${Header.render({
+            title: 'Dashboard',
+            subtitle: `Hoş geldiniz, ${user.username}!`,
+            actions: `
+                        ${isAdmin ? `
+                            <button onclick="App.navigate('motor-new')" class="btn-primary">
+                                <i class="fas fa-plus mr-2"></i>
+                                Yeni Motor
                             </button>
-                            <button onclick="Theme.toggle()" class="btn-secondary" title="Tema Değiştir">
-                                <i class="fas fa-moon dark:hidden"></i>
-                                <i class="fas fa-sun hidden dark:inline"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                        ` : ''}
+                        <button onclick="DashboardComponent.startQRScan()" class="btn-secondary">
+                            <i class="fas fa-qrcode mr-2"></i>
+                            QR Oku
+                        </button>
+                    `
+        })}
 
                 <!-- Stats Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-${isAdmin ? '4' : '3'} gap-6 mb-8">
@@ -285,12 +282,18 @@ const DashboardComponent = {
         const ctx = document.getElementById('motorStatsChart');
         if (!ctx) return;
 
+        // Destroy existing chart if it exists
         if (DashboardComponent.chartInstance) {
             DashboardComponent.chartInstance.destroy();
         }
 
-        const labels = DashboardComponent.motorStats.map(item => item.label);
-        const data = DashboardComponent.motorStats.map(item => item.count);
+        const stats = DashboardComponent.motorStats || [];
+        const labels = stats.map(s => s.date);
+        const data = stats.map(s => s.count);
+
+        const isDark = Theme.get() === 'dark';
+        const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : '#f3f4f6';
+        const textColor = isDark ? '#9ca3af' : '#6b7280'; // gray-400 vs gray-500
 
         DashboardComponent.chartInstance = new Chart(ctx, {
             type: 'line',
@@ -304,7 +307,7 @@ const DashboardComponent = {
                     borderWidth: 2,
                     tension: 0.4,
                     fill: true,
-                    pointBackgroundColor: '#ffffff',
+                    pointBackgroundColor: isDark ? '#1f2937' : '#ffffff',
                     pointBorderColor: '#4f46e5',
                     pointBorderWidth: 2,
                     pointRadius: 4,
@@ -321,10 +324,10 @@ const DashboardComponent = {
                     tooltip: {
                         mode: 'index',
                         intersect: false,
-                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                        titleColor: '#111827',
-                        bodyColor: '#4b5563',
-                        borderColor: '#e5e7eb',
+                        backgroundColor: isDark ? 'rgba(31, 41, 55, 0.95)' : 'rgba(255, 255, 255, 0.9)',
+                        titleColor: isDark ? '#f3f4f6' : '#111827',
+                        bodyColor: isDark ? '#d1d5db' : '#4b5563',
+                        borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : '#e5e7eb',
                         borderWidth: 1,
                         padding: 10,
                         displayColors: false
@@ -334,11 +337,12 @@ const DashboardComponent = {
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: '#f3f4f6',
+                            color: gridColor,
                             drawBorder: false
                         },
                         ticks: {
                             stepSize: 1,
+                            color: textColor,
                             font: {
                                 size: 11
                             }
@@ -349,6 +353,7 @@ const DashboardComponent = {
                             display: false
                         },
                         ticks: {
+                            color: textColor,
                             font: {
                                 size: 11
                             },

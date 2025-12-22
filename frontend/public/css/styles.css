@@ -283,9 +283,38 @@ body {
 }
 
 .dark .glass-dark {
-    background: rgba(31, 41, 55, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    background: rgba(30, 41, 59, 0.95);
+    /* Slate-800 equivalent, slightly darker */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+}
+
+.dark .text-gray-900 {
+    color: #f1f5f9 !important;
+}
+
+/* slate-100 */
+.dark .text-gray-600 {
+    color: #94a3b8 !important;
+}
+
+/* slate-400 */
+.dark .text-gray-500 {
+    color: #cbd5e1 !important;
+}
+
+/* slate-300 */
+.dark .text-gray-400 {
+    color: #64748b !important;
+}
+
+/* slate-500 */
+
+/* Toggle Button Fix for Dark Mode visibility */
+.dark .btn-secondary {
+    background: rgba(30, 41, 59, 0.8);
+    color: #e2e8f0;
+    border-color: rgba(71, 85, 105, 0.5);
 }
 
 /* Button Dark Mode */
