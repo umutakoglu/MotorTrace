@@ -75,6 +75,10 @@ const DashboardComponent = {
                                 <i class="fas fa-qrcode mr-2"></i>
                                 QR Oku
                             </button>
+                            <button onclick="Theme.toggle()" class="btn-secondary" title="Tema Değiştir">
+                                <i class="fas fa-moon dark:hidden"></i>
+                                <i class="fas fa-sun hidden dark:inline"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
