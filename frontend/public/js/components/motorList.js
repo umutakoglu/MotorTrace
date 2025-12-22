@@ -307,120 +307,119 @@ const MotorListComponent = {
         }
     },
 
-    printQR: (motorId, model, chassisNumber, engineNumber, year) => {
+    printQR: async (motorId, model, chassisNumber, engineNumber, year) => {
         if (!motorId) return;
 
-        // Create a hidden iframe for printing
-        const iframe = document.createElement('iframe');
-        iframe.style.position = 'absolute';
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.border = 'none';
-        document.body.appendChild(iframe);
+        try {
+            showLoading();
 
-        const iframeDoc = iframe.contentWindow.document;
-        iframeDoc.open();
-        iframeDoc.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>QR Kod - ${model}</title>
-                <style>
-                    * { margin: 0; padding: 0; box-sizing: border-box; }
-                    body {
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: center;
-                        align-items: center;
-                        min-height: 100vh;
-                        background: white;
-                        font-family: Arial, sans-serif;
-                        padding: 20px;
-                    }
-                    .qr-container {
-                        text-align: center;
-                        max-width: 500px;
-                    }
-                    img {
-                        width: 300px;
-                        height: 300px;
-                        margin: 20px 0;
-                        display: block;
-                        border: 2px solid #ddd;
-                        padding: 10px;
-                    }
-                    h2 {
-                        color: #333;
-                        margin-bottom: 10px;
-                        font-size: 24px;
-                    }
-                    .info {
-                        color: #666;
-                        font-size: 14px;
-                        margin: 5px 0;
-                    }
-                    .loading {
-                        color: #999;
-                        font-size: 14px;
-                    }
-                    @media print {
-                        body { 
-                            padding: 0; 
-                            margin: 0; 
+            // Fetch QR code with authentication
+            const response = await API.motors.downloadQR(motorId);
+
+            // Create blob URL from response
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+
+            hideLoading();
+
+            // Create a hidden iframe for printing
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'absolute';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = 'none';
+            document.body.appendChild(iframe);
+
+            const iframeDoc = iframe.contentWindow.document;
+            iframeDoc.open();
+            iframeDoc.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>QR Kod - ${model}</title>
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        body {
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: center;
+                            min-height: 100vh;
+                            background: white;
+                            font-family: Arial, sans-serif;
+                            padding: 20px;
                         }
-                        .loading {
-                            display: none;
+                        .qr-container {
+                            text-align: center;
+                            max-width: 500px;
                         }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="qr-container">
-                    <h2>${model}</h2>
-                    <div class="info">Yıl: ${year}</div>
-                    <div class="info">Şase: ${chassisNumber}</div>
-                    <div class="info">Motor: ${engineNumber}</div>
-                    <img id="qrImage" src="/api/motors/${motorId}/qr/download" alt="QR Code" />
-                    <p class="loading" id="loadingText">QR kod yükleniyor...</p>
-                </div>
-                <script>
-                    const img = document.getElementById('qrImage');
-                    const loadingText = document.getElementById('loadingText');
-                    
-                    // Wait for image to load before printing
-                    img.onload = function() {
-                        loadingText.style.display = 'none';
-                        setTimeout(function() {
-                            window.print();
-                            // Clean up after printing
+                        img {
+                            width: 300px;
+                            height: 300px;
+                            margin: 20px 0;
+                            display: block;
+                            border: 2px solid #ddd;
+                            padding: 10px;
+                        }
+                        h2 {
+                            color: #333;
+                            margin-bottom: 10px;
+                            font-size: 24px;
+                        }
+                        .info {
+                            color: #666;
+                            font-size: 14px;
+                            margin: 5px 0;
+                        }
+                        @media print {
+                            body { 
+                                padding: 0; 
+                                margin: 0; 
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="qr-container">
+                        <h2>${model}</h2>
+                        <div class="info">Yıl: ${year}</div>
+                        <div class="info">Şase: ${chassisNumber}</div>
+                        <div class="info">Motor: ${engineNumber}</div>
+                        <img id="qrImage" src="${blobUrl}" alt="QR Code" />
+                    </div>
+                    <script>
+                        const img = document.getElementById('qrImage');
+                        
+                        // Wait for image to load before printing
+                        img.onload = function() {
                             setTimeout(function() {
-                                window.parent.document.body.removeChild(window.frameElement);
-                            }, 500);
-                        }, 300);
-                    };
-                    
-                    // Handle image load error
-                    img.onerror = function() {
-                        loadingText.textContent = 'QR kod yüklenemedi. Lütfen tekrar deneyin.';
-                        loadingText.style.color = 'red';
-                        setTimeout(function() {
+                                window.print();
+                                // Clean up after printing
+                                setTimeout(function() {
+                                    // Revoke blob URL
+                                    URL.revokeObjectURL('${blobUrl}');
+                                    window.parent.document.body.removeChild(window.frameElement);
+                                }, 500);
+                            }, 300);
+                        };
+                        
+                        // Handle image load error
+                        img.onerror = function() {
+                            alert('QR kod görseli yüklenemedi');
+                            URL.revokeObjectURL('${blobUrl}');
                             window.parent.document.body.removeChild(window.frameElement);
-                            window.parent.showToast('QR kod yüklenemedi', 'error');
-                        }, 2000);
-                    };
-                    
-                    // Timeout fallback
-                    setTimeout(function() {
-                        if (loadingText.style.display !== 'none') {
-                            loadingText.textContent = 'QR kod yükleme zaman aşımı';
-                            loadingText.style.color = 'orange';
-                        }
-                    }, 5000);
-                </script>
-            </body>
-            </html>
-        `);
-        iframeDoc.close();
+                        };
+                    </script>
+                </body>
+                </html>
+            `);
+            iframeDoc.close();
+
+        } catch (error) {
+            hideLoading();
+            showToast('QR kod yüklenirken hata oluştu: ' + error.message, 'error');
+            console.error('QR print error:', error);
+        }
     },
 
     generateAllQRs: async () => {
