@@ -33,150 +33,147 @@ const MotorDetailComponent = {
 
         return `
             <div class="min-h-screen p-4 md:p-8">
-                <!-- Header -->
-                <div class="mb-8">
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <h1 class="text-4xl font-bold text-gray-900 mb-2">${motor.model}</h1>
-                            <p class="text-gray-600">Motor Detayları</p>
-                        </div>
-                        <div class="flex gap-3">
-                            <button onclick="App.navigate('motors')" class="btn-secondary">
-                                <i class="fas fa-arrow-left mr-2"></i>
-                                Geri
+        return `
+            < div class="min-h-screen p-4 md:p-8" >
+                < !--Header -->
+            ${
+                Header.render({
+                    title: motor.model,
+                    subtitle: 'Motor Detayları',
+                    backButton: { onclick: "App.navigate('motors')" },
+                    actions: `
+                        ${Permissions.canEditMotor() ? `
+                            <button onclick="App.navigate('motor-edit', '${motor.id}')" class="btn-primary">
+                                <i class="fas fa-edit md:mr-2"></i>
+                                <span class="hidden md:inline">Düzenle</span>
                             </button>
-                            ${Permissions.canEditMotor() ? `
-                                <button onclick="App.navigate('motor-edit', '${motor.id}')" class="btn-primary">
-                                    <i class="fas fa-edit mr-2"></i>
-                                    Düzenle
+                        ` : ''}
+                        ${Permissions.canDeleteMotor() ? `
+                            <button onclick="MotorDetailComponent.deleteMotor('${motor.id}')" class="btn-danger">
+                                <i class="fas fa-trash md:mr-2"></i>
+                                <span class="hidden md:inline">Sil</span>
+                            </button>
+                        ` : ''}
+                    `
+                })
+        }
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Motor Info -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Motor Information Card -->
+                <div class="glass-dark rounded-xl p-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Motor Bilgileri</h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Chassis Number -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-2">Şase Numarası</label>
+                            <div class="flex items-center gap-2">
+                                <code class="flex-1 bg-gray-100 p-3 rounded-lg font-mono text-sm text-gray-900">${motor.chassis_number}</code>
+                                <button
+                                    onclick="MotorDetailComponent.copyToClipboard('${motor.chassis_number}')"
+                                    class="text-blue-500 hover:text-blue-600"
+                                    title="Kopyala">
+                                    <i class="fas fa-copy"></i>
                                 </button>
-                            ` : ''}
-                            ${Permissions.canDeleteMotor() ? `
-                                <button onclick="MotorDetailComponent.deleteMotor('${motor.id}')" class="btn-danger">
-                                    <i class="fas fa-trash mr-2"></i>
-                                    Sil
-                                </button>
-                            ` : ''}
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Left Column - Motor Info -->
-                    <div class="lg:col-span-2 space-y-6">
-                        <!-- Motor Information Card -->
-                        <div class="glass-dark rounded-xl p-6">
-                            <h2 class="text-2xl font-bold text-gray-900 mb-6">Motor Bilgileri</h2>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <!-- Chassis Number -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-600 mb-2">Şase Numarası</label>
-                                    <div class="flex items-center gap-2">
-                                        <code class="flex-1 bg-gray-100 p-3 rounded-lg font-mono text-sm text-gray-900">${motor.chassis_number}</code>
-                                        <button 
-                                            onclick="MotorDetailComponent.copyToClipboard('${motor.chassis_number}')"
-                                            class="text-blue-500 hover:text-blue-600"
-                                            title="Kopyala">
-                                            <i class="fas fa-copy"></i>
-                                        </button>
-                                    </div>
-                                </div>
+                        <!-- Engine Number -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-2">Motor Numarası</label>
+                            <div class="flex items-center gap-2">
+                                <code class="flex-1 bg-gray-100 p-3 rounded-lg font-mono text-sm text-gray-900">${motor.engine_number}</code>
+                                <button
+                                    onclick="MotorDetailComponent.copyToClipboard('${motor.engine_number}')"
+                                    class="text-blue-500 hover:text-blue-600"
+                                    title="Kopyala">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
 
-                                <!-- Engine Number -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-600 mb-2">Motor Numarası</label>
-                                    <div class="flex items-center gap-2">
-                                        <code class="flex-1 bg-gray-100 p-3 rounded-lg font-mono text-sm text-gray-900">${motor.engine_number}</code>
-                                        <button 
-                                            onclick="MotorDetailComponent.copyToClipboard('${motor.engine_number}')"
-                                            class="text-blue-500 hover:text-blue-600"
-                                            title="Kopyala">
-                                            <i class="fas fa-copy"></i>
-                                        </button>
-                                    </div>
-                                </div>
+                        <!-- Model -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-2">Model</label>
+                            <p class="bg-gray-100 p-3 rounded-lg text-gray-900 font-semibold">${motor.model}</p>
+                        </div>
 
-                                <!-- Model -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-600 mb-2">Model</label>
-                                    <p class="bg-gray-100 p-3 rounded-lg text-gray-900 font-semibold">${motor.model}</p>
-                                </div>
+                        <!-- Year -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-2">Yıl</label>
+                            <p class="bg-gray-100 p-3 rounded-lg text-gray-900">${motor.year}</p>
+                        </div>
 
-                                <!-- Year -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-600 mb-2">Yıl</label>
-                                    <p class="bg-gray-100 p-3 rounded-lg text-gray-900">${motor.year}</p>
-                                </div>
+                        <!-- Color -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-2">Renk</label>
+                            <p class="bg-gray-100 p-3 rounded-lg text-gray-900">${motor.color}</p>
+                        </div>
 
-                                <!-- Color -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-600 mb-2">Renk</label>
-                                    <p class="bg-gray-100 p-3 rounded-lg text-gray-900">${motor.color}</p>
-                                </div>
+                        <!-- Manufacturer -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-2">Üretici</label>
+                            <p class="bg-gray-100 p-3 rounded-lg text-gray-900">${motor.manufacturer || 'Belirtilmemiş'}</p>
+                        </div>
 
-                                <!-- Manufacturer -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-600 mb-2">Üretici</label>
-                                    <p class="bg-gray-100 p-3 rounded-lg text-gray-900">${motor.manufacturer || 'Belirtilmemiş'}</p>
-                                </div>
+                        <!-- Status -->
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-600 mb-2">Durum</label>
+                            <div>
+                                <span class="badge badge-${MotorDetailComponent.getStatusClass(motor.status)} text-lg">
+                                    ${MotorDetailComponent.getStatusText(motor.status)}
+                                </span>
+                            </div>
+                        </div>
 
-                                <!-- Status -->
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-600 mb-2">Durum</label>
-                                    <div>
-                                        <span class="badge badge-${MotorDetailComponent.getStatusClass(motor.status)} text-lg">
-                                            ${MotorDetailComponent.getStatusText(motor.status)}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <!-- Notes -->
-                                ${motor.notes ? `
+                        <!-- Notes -->
+                        ${motor.notes ? `
                                     <div class="md:col-span-2">
                                         <label class="block text-sm font-medium text-gray-600 mb-2">Notlar</label>
                                         <p class="bg-gray-100 p-3 rounded-lg text-gray-700">${motor.notes}</p>
                                     </div>
                                 ` : ''}
 
-                                <!-- Timestamps -->
-                                <div class="md:col-span-2 pt-4 border-t border-gray-200">
-                                    <div class="grid grid-cols-2 gap-4 text-sm">
-                                        <div>
-                                            <span class="text-gray-600">Oluşturulma:</span>
-                                            <span class="ml-2 text-gray-900">${new Date(motor.created_at).toLocaleDateString('tr-TR')}</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-gray-600">Güncelleme:</span>
-                                            <span class="ml-2 text-gray-900">${new Date(motor.updated_at).toLocaleDateString('tr-TR')}</span>
-                                        </div>
-                                    </div>
+                        <!-- Timestamps -->
+                        <div class="md:col-span-2 pt-4 border-t border-gray-200">
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span class="text-gray-600">Oluşturulma:</span>
+                                    <span class="ml-2 text-gray-900">${new Date(motor.created_at).toLocaleDateString('tr-TR')}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Güncelleme:</span>
+                                    <span class="ml-2 text-gray-900">${new Date(motor.updated_at).toLocaleDateString('tr-TR')}</span>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Service History -->
-                        <div class="glass-dark rounded-xl p-6">
-                            <div class="flex items-center justify-between mb-6">
-                                <h2 class="text-2xl font-bold text-gray-900">Servis Geçmişi</h2>
-                                ${Permissions.canAddService() ? `
+                <!-- Service History -->
+                <div class="glass-dark rounded-xl p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Servis Geçmişi</h2>
+                        ${Permissions.canAddService() ? `
                                     <button class="btn-primary" onclick="AddServiceModal.open('${motor.id}')">
                                         <i class="fas fa-plus mr-2"></i>
                                         Servis Ekle
                                     </button>
                                 ` : ''}
-                            </div>
-
-                            ${MotorDetailComponent.renderServices()}
-                        </div>
                     </div>
 
-                    <!-- Right Column - QR Code -->
-                    <div class="lg:col-span-1">
-                        <div class="glass-dark rounded-xl p-6 sticky top-8">
-                            <h2 class="text-xl font-bold text-gray-900 mb-4">QR Kod</h2>
-                            
-                            ${motor.qrCode ? `
+                    ${MotorDetailComponent.renderServices()}
+                </div>
+            </div>
+
+            <!-- Right Column - QR Code -->
+            <div class="lg:col-span-1">
+                <div class="glass-dark rounded-xl p-6 sticky top-8">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">QR Kod</h2>
+
+                    ${motor.qrCode ? `
                                 <!-- QR Code exists -->
                                 <div class="bg-white p-4 rounded-lg border-2 border-gray-200 mb-4">
                                     <img 
@@ -204,35 +201,36 @@ const MotorDetailComponent = {
                                 </div>
                             `}
 
-                            <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                                <p class="text-sm text-blue-800">
-                                    <i class="fas fa-info-circle mr-2"></i>
-                                    QR kodları motor oluşturulurken otomatik oluşturulur.
-                                </p>
-                            </div>
-                        </div>
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <p class="text-sm text-blue-800">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            QR kodları motor oluşturulurken otomatik oluşturulur.
+                        </p>
                     </div>
                 </div>
             </div>
-        `;
+        </div>
+            </div >
+    `;
     },
 
     renderServices: () => {
         if (!MotorDetailComponent.services || MotorDetailComponent.services.length === 0) {
             return `
-                <div class="text-center py-12">
+    < div class="text-center py-12" >
                     <i class="fas fa-tools text-6xl text-gray-300 mb-4"></i>
                     <p class="text-gray-500 text-lg">Henüz servis kaydı bulunmuyor</p>
-                </div>
-            `;
+                </div >
+    `;
         }
 
         const user = Storage.getUser();
         const isAdmin = user && user.role === 'admin';
 
         return `
-            <div class="space-y-3">
-                ${MotorDetailComponent.services.map(service => `
+    < div class="space-y-3" >
+        ${
+            MotorDetailComponent.services.map(service => `
                     <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                         <div class="flex items-start justify-between">
                             <div class="flex-1">
@@ -304,9 +302,10 @@ const MotorDetailComponent = {
                             </div>
                         </div>
                     </div>
-                `).join('')}
-            </div>
-        `;
+                `).join('')
+}
+            </div >
+    `;
     },
 
     copyToClipboard: (text) => {
@@ -323,20 +322,20 @@ const MotorDetailComponent = {
 
         const printWindow = window.open('', '_blank');
         printWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
+    < !DOCTYPE html >
+        <html>
             <head>
                 <meta charset="UTF-8">
-                <title>QR Kod - ${motor.chassis_number}</title>
-                <style>
-                    * {
-                        margin: 0;
+                    <title>QR Kod - ${motor.chassis_number}</title>
+                    <style>
+                        * {
+                            margin: 0;
                         padding: 0;
                         box-sizing: border-box;
                     }
-                    
-                    body {
-                        display: flex;
+
+                        body {
+                            display: flex;
                         flex-direction: column;
                         justify-content: center;
                         align-items: center;
@@ -345,48 +344,48 @@ const MotorDetailComponent = {
                         font-family: Arial, sans-serif;
                         padding: 20px;
                     }
-                    
-                    .qr-container {
-                        text-align: center;
+
+                        .qr-container {
+                            text - align: center;
                         padding: 20px;
                         border: 2px solid #333;
                     }
-                    
-                    h2 {
-                        margin-bottom: 15px;
+
+                        h2 {
+                            margin - bottom: 15px;
                         color: #333;
                     }
-                    
-                    img {
-                        max-width: 300px;
+
+                        img {
+                            max - width: 300px;
                         width: 100%;
                         height: auto;
                         margin: 20px 0;
                     }
-                    
-                    .info {
-                        margin-top: 15px;
+
+                        .info {
+                            margin - top: 15px;
                         font-size: 14px;
                         color: #666;
                     }
-                    
-                    @media print {
-                        body { 
+
+                        @media print {
+                            body {
                             padding: 0;
-                            margin: 0;
+                        margin: 0;
                         }
                         .qr-container {
                             border: none;
                         }
                     }
-                </style>
+                    </style>
             </head>
             <body>
                 <div class="qr-container">
                     <h2>${motor.model}</h2>
-                    <img src="/api/motors/${motor.id}/qr/download" 
-                         alt="QR Code" 
-                         onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22300%22><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22>QR Yüklenemedi</text></svg>'" />
+                    <img src="/api/motors/${motor.id}/qr/download"
+                        alt="QR Code"
+                        onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22300%22><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22>QR Yüklenemedi</text></svg>'" />
                     <div class="info">
                         <p><strong>Şase No:</strong> ${motor.chassis_number}</p>
                         <p><strong>Motor No:</strong> ${motor.engine_number}</p>
@@ -394,14 +393,14 @@ const MotorDetailComponent = {
                 </div>
                 <script>
                     window.onload = function() {
-                        setTimeout(function() {
+                        setTimeout(function () {
                             window.print();
                         }, 500);
                     };
                 </script>
             </body>
-            </html>
-        `);
+        </html>
+`);
         printWindow.document.close();
     },
 
