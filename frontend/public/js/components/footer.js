@@ -1,6 +1,5 @@
 // Footer Component - Version & Copyright Display
 const Footer = {
-    version: '1.0.0',
     year: new Date().getFullYear(),
 
     render: () => {
@@ -9,7 +8,7 @@ const Footer = {
                 <div class="footer-content">
                     <div class="footer-left">
                         <span class="app-name">MotorTrace</span>
-                        <span class="version-badge">v${Footer.version}</span>
+                        <span class="version-badge">v${APP_VERSION}</span>
                     </div>
                     <div class="footer-center">
                         <p class="copyright">© ${Footer.year} MotorTrace. Tüm hakları saklıdır.</p>
@@ -30,7 +29,7 @@ const Footer = {
             <div class="modal-overlay" onclick="this.remove()">
                 <div class="modal-content about-modal" onclick="event.stopPropagation()">
                     <div class="modal-header">
-                        <h2><i class="fas fa-motorcycle"></i> MotorTrace v${Footer.version}</h2>
+                        <h2><i class="fas fa-motorcycle"></i> MotorTrace v${APP_VERSION}</h2>
                         <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
                             <i class="fas fa-times"></i>
                         </button>
@@ -39,7 +38,7 @@ const Footer = {
                         <p><strong>Motor Takip ve Yönetim Sistemi</strong></p>
                         <p>MotorTrace, motorlu araçların takibi, servis kayıtları ve QR kod tabanlı izleme için geliştirilmiş profesyonel bir sistemdir.</p>
                         <hr>
-                        <p><strong>Versiyon:</strong> ${Footer.version}</p>
+                        <p><strong>Versiyon:</strong> ${APP_VERSION}</p>
                         <p><strong>Telif Hakkı:</strong> © ${Footer.year} MotorTrace</p>
                         <p><strong>Lisans:</strong> Tüm hakları saklıdır</p>
                     </div>
